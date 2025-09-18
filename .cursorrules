@@ -1,0 +1,73 @@
+# Cursor Rules for Perfumario Project
+
+## Language and Communication
+
+- Always respond in Spanish when the user writes in Spanish
+- When creating Pull Requests, always use English for the PR title, description, and content
+- Use the established PR template from `.github/pull_request_template.md`
+- Follow conventional commit messages in English (feat:, fix:, docs:, etc.)
+
+## Pull Request Guidelines
+
+- Always use the PR template structure with all sections filled out
+- Include proper emojis and formatting as defined in the template
+- Provide clear descriptions of changes made
+- Include impact assessment and testing information
+- Use checklists for review readiness
+
+## Code Standards
+
+- Follow React Native and Expo best practices
+- Use TypeScript for type safety
+- Maintain consistent code formatting
+- Add proper comments for complex logic
+- Follow the project's file structure conventions
+
+## Development Workflow
+
+- Create feature branches with descriptive names (feature/, fix/, docs/)
+- Use conventional commits (feat:, fix:, docs:, style:, refactor:, test:, chore:)
+- Ensure all tests pass before creating PRs
+- Update documentation when adding new features
+
+## File Organization
+
+- Keep components in appropriate directories
+- Use descriptive file and folder names
+- Maintain clean asset organization in `assets/` folder
+- Follow the established project structure
+
+## Git Practices
+
+- Write clear, descriptive commit messages
+- Use conventional commit format
+- Keep commits focused and atomic
+- Rebase feature branches before merging
+
+## Documentation
+
+- Update README.md when adding new features
+- Maintain up-to-date CONTRIBUTING.md
+- Document API changes and new components
+- Include examples for complex functionality
+
+## Testing
+
+- Add tests for new features
+- Ensure existing tests continue to pass
+- Test on both iOS and Android when possible
+- Include manual testing steps in PR descriptions
+
+## Performance
+
+- Optimize images and assets
+- Use proper React Native performance patterns
+- Avoid unnecessary re-renders
+- Monitor bundle size impact
+
+## Security
+
+- Never commit sensitive information (API keys, passwords)
+- Use environment variables for configuration
+- Follow security best practices for mobile apps
+- Validate user inputs properly
