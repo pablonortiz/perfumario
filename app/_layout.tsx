@@ -1,10 +1,16 @@
+import { BrandsInitializer } from "@/components/BrandsInitializer";
+import { queryClient } from "@/hooks/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { PaperProvider } from "react-native-paper";
 
 export default function RootLayout() {
   return (
-    <PaperProvider>
-      <Stack screenOptions={{ headerShown: false }} />
-    </PaperProvider>
+    <QueryClientProvider client={queryClient}>
+      <PaperProvider>
+        <BrandsInitializer />
+        <Stack screenOptions={{ headerShown: false }} />
+      </PaperProvider>
+    </QueryClientProvider>
   );
 }
