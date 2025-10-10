@@ -1,5 +1,6 @@
 import { useCreateBrand } from "@/hooks/useCreateBrand";
 import { useCreatePerfume } from "@/hooks/useCreatePerfume";
+import { useUpdatePerfume } from "@/hooks/useUpdatePerfume";
 import { FormTextField } from "@/src/components/common/FormTextField";
 import {
   Gender,
@@ -40,6 +41,14 @@ export interface AddPerfumeModalProps {
   defaultValues?: Partial<AddPerfumeFormValues>;
   brands: BrandFromAPI[];
   primaryColor?: string;
+  mode?: "create" | "edit"; // Nuevo prop para modo edición
+  editingPerfume?: {
+    id: string;
+    name: string;
+    gender: "male" | "female" | "unisex";
+    brandId: string;
+    stock: number;
+  }; // Datos del perfume a editar
 }
 
 /**
@@ -53,20 +62,42 @@ export const AddPerfumeModal: React.FC<AddPerfumeModalProps> = ({
   defaultValues = {},
   brands,
   primaryColor = "#603780",
+  mode = "create",
+  editingPerfume,
 }) => {
   // Hooks para la API
   const createBrandMutation = useCreateBrand();
   const createPerfumeMutation = useCreatePerfume();
+  const updatePerfumeMutation = useUpdatePerfume();
 
-  const [formValues, setFormValues] = useState<AddPerfumeFormValues>({
-    name: "",
-    brandId: undefined,
-    brandName: "",
-    gender: "female",
-    initialStockPreset: 10,
-    initialStock: 10,
-    ...defaultValues,
-  });
+  // Inicializar valores del formulario basado en el modo
+  const getInitialValues = (): AddPerfumeFormValues => {
+    if (mode === "edit" && editingPerfume) {
+      const brand = brands.find((b) => b.id === editingPerfume.brandId);
+      return {
+        name: editingPerfume.name,
+        brandId: editingPerfume.brandId,
+        brandName: brand?.name || "",
+        gender: editingPerfume.gender,
+        initialStockPreset: editingPerfume.stock,
+        initialStock: editingPerfume.stock,
+        ...defaultValues,
+      };
+    }
+
+    return {
+      name: "",
+      brandId: undefined,
+      brandName: "",
+      gender: "female",
+      initialStockPreset: 10,
+      initialStock: 10,
+      ...defaultValues,
+    };
+  };
+
+  const [formValues, setFormValues] =
+    useState<AddPerfumeFormValues>(getInitialValues());
 
   const [errors, setErrors] = useState<Partial<AddPerfumeFormValues>>({});
 
@@ -103,25 +134,44 @@ export const AddPerfumeModal: React.FC<AddPerfumeModalProps> = ({
       }
     }
 
-    // Crear el perfume
+    // Crear o actualizar el perfume
     if (formValues.brandId) {
       try {
-        await createPerfumeMutation.mutateAsync({
-          name: formValues.name.trim(),
-          gender: formValues.gender,
-          stock: formValues.initialStock,
-          brandId: formValues.brandId,
-        });
+        if (mode === "edit" && editingPerfume) {
+          // Modo edición
+          await updatePerfumeMutation.mutateAsync({
+            id: editingPerfume.id,
+            name: formValues.name.trim(),
+            gender: formValues.gender,
+            stock: formValues.initialStock,
+            brandId: formValues.brandId,
+          });
 
-        Alert.alert(
-          "Perfume creado",
-          `El perfume "${formValues.name}" ha sido creado exitosamente.`,
-          [{ text: "OK", onPress: onClose }],
-        );
+          Alert.alert(
+            "Perfume actualizado",
+            `El perfume "${formValues.name}" ha sido actualizado exitosamente.`,
+            [{ text: "OK", onPress: onClose }],
+          );
+        } else {
+          // Modo creación
+          await createPerfumeMutation.mutateAsync({
+            name: formValues.name.trim(),
+            gender: formValues.gender,
+            stock: formValues.initialStock,
+            brandId: formValues.brandId,
+          });
+
+          Alert.alert(
+            "Perfume creado",
+            `El perfume "${formValues.name}" ha sido creado exitosamente.`,
+            [{ text: "OK", onPress: onClose }],
+          );
+        }
       } catch (error) {
+        const action = mode === "edit" ? "actualizar" : "crear";
         Alert.alert(
           "Error",
-          `No se pudo crear el perfume: ${error instanceof Error ? error.message : "Error desconocido"}`,
+          `No se pudo ${action} el perfume: ${error instanceof Error ? error.message : "Error desconocido"}`,
           [{ text: "OK" }],
         );
       }
@@ -165,7 +215,10 @@ export const AddPerfumeModal: React.FC<AddPerfumeModalProps> = ({
 
   const isFormValid = formValues.name.trim().length >= 2;
   const isLoading =
-    loading || createBrandMutation.isPending || createPerfumeMutation.isPending;
+    loading ||
+    createBrandMutation.isPending ||
+    createPerfumeMutation.isPending ||
+    updatePerfumeMutation.isPending;
 
   const genderOptions = [
     { label: "Mujer", value: "female" as Gender },
@@ -220,7 +273,7 @@ export const AddPerfumeModal: React.FC<AddPerfumeModalProps> = ({
                   marginBottom: 24,
                 }}
               >
-                Añadir perfume
+                {mode === "edit" ? "Editar perfume" : "Añadir perfume"}
               </Text>
 
               {/* Perfume Name */}
@@ -544,7 +597,13 @@ export const AddPerfumeModal: React.FC<AddPerfumeModalProps> = ({
                   color: isFormValid && !isLoading ? "#FFFFFF" : "#9CA3AF",
                 }}
               >
-                {isLoading ? "Guardando..." : "Guardar"}
+                {isLoading
+                  ? mode === "edit"
+                    ? "Actualizando..."
+                    : "Guardando..."
+                  : mode === "edit"
+                    ? "Actualizar"
+                    : "Guardar"}
               </Text>
             </Pressable>
           </View>
