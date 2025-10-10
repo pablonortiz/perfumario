@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 const API_BASE_URL = "https://perfumario-server.vercel.app";
 
 const searchPerfumes = async (query: string): Promise<PerfumeFromAPI[]> => {
-  if (!query.trim()) {
+  if (!query.trim() || query.trim().length < 2) {
     return [];
   }
 
@@ -29,7 +29,7 @@ export const usePerfumeSearch = (searchQuery: string) => {
   return useQuery({
     queryKey: ["perfumes", "search", searchQuery],
     queryFn: () => searchPerfumes(searchQuery),
-    enabled: searchQuery.trim().length > 0,
+    enabled: searchQuery.trim().length >= 2,
     staleTime: 2 * 60 * 1000, // 2 minutos para búsquedas
   });
 };

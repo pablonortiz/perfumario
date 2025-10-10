@@ -1,6 +1,7 @@
 import React from "react";
 import { View, ViewStyle } from "react-native";
 import FloatingActionButton from "../FloatingActionButton";
+import { AnimatedButton } from "@/components/AnimatedButton";
 
 type FooterProps = {
   onFABPress: () => void;
@@ -52,12 +53,14 @@ const Footer: React.FC<FooterProps> = ({
           zIndex: 10,
         }}
       >
-        <FloatingActionButton
-          onPress={onFABPress}
-          backgroundColor={fabBackgroundColor}
-          iconColor={fabIconColor}
-          size={fabSize}
-        />
+        <AnimatedButton onPress={onFABPress}>
+          <FloatingActionButton
+            onPress={onFABPress}
+            backgroundColor={fabBackgroundColor}
+            iconColor={fabIconColor}
+            size={fabSize}
+          />
+        </AnimatedButton>
       </View>
     </View>
   );

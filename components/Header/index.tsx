@@ -1,8 +1,9 @@
 import Logo from "@/assets/images/logo-transparent.png";
+import { AnimatedButton } from "@/components/AnimatedButton";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import React, { Dispatch, FC, SetStateAction, useState } from "react";
-import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import { Searchbar } from "react-native-paper";
 
 interface HeaderProps {
@@ -62,7 +63,7 @@ const Header: FC<HeaderProps> = ({
           />
         </View>
         <View className="flex-row items-center gap-2">
-          <Pressable
+          <AnimatedButton
             onPress={onPressFilters}
             className={`w-12 h-12 rounded-full items-center justify-center ${
               hasActiveFilters ? "bg-white" : "bg-white/20"
@@ -73,14 +74,14 @@ const Header: FC<HeaderProps> = ({
               size={20}
               color={hasActiveFilters ? "#7C3AED" : "#FFFFFF"}
             />
-          </Pressable>
-          <Pressable
+          </AnimatedButton>
+          <AnimatedButton
             onPress={onPressBrandManagement}
             className="w-12 h-12 rounded-full items-center justify-center bg-white/20"
           >
             <Ionicons name="settings" size={20} color="#FFFFFF" />
-          </Pressable>
-          <Pressable
+          </AnimatedButton>
+          <AnimatedButton
             onPress={handlePressDocument}
             className="w-12 h-12 rounded-full items-center justify-center bg-white/20"
             disabled={isDocumentButtonLoading}
@@ -90,7 +91,7 @@ const Header: FC<HeaderProps> = ({
             ) : (
               <Ionicons name="document-text" size={20} color="#FFFFFF" />
             )}
-          </Pressable>
+          </AnimatedButton>
         </View>
       </View>
 
@@ -98,11 +99,13 @@ const Header: FC<HeaderProps> = ({
       {searchQuery.trim() && (
         <View className="px-4 py-2 bg-violet-100">
           <Text className="text-violet-700 text-sm font-medium">
-            {isSearching
-              ? "Buscando..."
-              : searchResultsCount !== undefined
-                ? `${searchResultsCount} resultado${searchResultsCount !== 1 ? "s" : ""} encontrado${searchResultsCount !== 1 ? "s" : ""}`
-                : ""}
+            {searchQuery.trim().length < 2
+              ? "Escribe al menos 2 caracteres para buscar"
+              : isSearching
+                ? "Buscando..."
+                : searchResultsCount !== undefined
+                  ? `${searchResultsCount} resultado${searchResultsCount !== 1 ? "s" : ""} encontrado${searchResultsCount !== 1 ? "s" : ""}`
+                  : ""}
           </Text>
         </View>
       )}

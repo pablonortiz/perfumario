@@ -1,9 +1,12 @@
+import { AnimatedListItemElegant } from "@/components/AnimatedList/AnimatedListItemElegant";
+import { AnimatedModal } from "@/components/AnimatedModal";
 import { BrandManagementModal } from "@/components/BrandManagementModal";
 import { FilterChips } from "@/components/FilterChips";
 import { FilterModal } from "@/components/FilterModal";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import PerfumeCard from "@/components/PerfumeCard";
+import { PerfumeListSkeleton } from "@/components/SkeletonLoader/PerfumeListSkeleton";
 import { useAllPerfumes } from "@/hooks/useAllPerfumes";
 import { useBrands } from "@/hooks/useBrands";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
@@ -16,7 +19,7 @@ import { AddPerfumeModal } from "@/src/components/modals/AddPerfumeModal";
 import { PerfumeFromAPI } from "@/types/perfume";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Text, View } from "react-native";
+import { Alert, FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
 
@@ -64,7 +67,7 @@ export default function Index() {
     data: filteredResults = [],
     isLoading: isLoadingFilters,
     error: filtersError,
-    refetch: refetchFilters,
+    refetch: _refetchFilters,
   } = usePerfumeFilters(filters);
 
   // Obtener marcas para el modal
@@ -79,12 +82,12 @@ export default function Index() {
   const generatePDFMutation = useGeneratePDF();
 
   // Lógica para determinar qué datos mostrar
-  const hasSearch = debouncedSearchQuery.trim();
+  const hasSearch = debouncedSearchQuery.trim().length >= 2;
   const hasFilters = filters.gender || filters.brandId;
 
   let perfumes = allPerfumes;
   let isLoading = isLoadingAll;
-  let error = errorAll;
+  let _error = errorAll;
 
   if (hasSearch && hasFilters) {
     // Combinar búsqueda y filtros: filtrar los resultados de búsqueda
@@ -96,21 +99,26 @@ export default function Index() {
       return matchesGender && matchesBrand;
     });
     isLoading = isSearching;
-    error = searchError;
+    _error = searchError;
   } else if (hasSearch) {
     // Solo búsqueda
     perfumes = searchResults;
     isLoading = isSearching;
-    error = searchError;
+    _error = searchError;
   } else if (hasFilters) {
     // Solo filtros
     perfumes = filteredResults as PerfumeFromAPI[];
     isLoading = isLoadingFilters;
-    error = filtersError;
+    _error = filtersError;
   }
 
   // Estado de búsqueda para mostrar indicadores visuales
   const isSearchingNow = searchQuery.trim() !== debouncedSearchQuery.trim();
+
+  // Estado mejorado para evitar mostrar "0 resultados" brevemente
+  const isActuallySearching =
+    isSearchingNow || (searchQuery.trim().length >= 2 && isSearching);
+  const shouldShowResults = !isActuallySearching && !isLoading;
 
   // Función para manejar el pull to refresh
   const handleRefresh = async () => {
@@ -245,7 +253,7 @@ export default function Index() {
       });
 
       return true;
-    } catch (error) {
+    } catch (_error) {
       Alert.alert("Error", "No se pudo generar el PDF. Intenta nuevamente.", [
         { text: "OK" },
       ]);
@@ -253,18 +261,20 @@ export default function Index() {
     }
   }, [allPerfumesForPDF, brands, generatePDFMutation]);
 
-  // RenderItem memoizado para el FlatList
+  // RenderItem memoizado para el FlatList con animaciones
   const renderPerfumeItem = useCallback(
-    ({ item }: { item: any }) => (
-      <PerfumeCard
-        id={item.id || ""}
-        gender={item.gender || "unisex"}
-        name={item.name || ""}
-        brandId={item.brandId || ""}
-        stock={item.stock || 0}
-        onEdit={handleEditPerfume}
-        onDelete={handleDeletePerfume}
-      />
+    ({ item, index }: { item: any; index: number }) => (
+      <AnimatedListItemElegant index={index} delay={150}>
+        <PerfumeCard
+          id={item.id || ""}
+          gender={item.gender || "unisex"}
+          name={item.name || ""}
+          brandId={item.brandId || ""}
+          stock={item.stock || 0}
+          onEdit={handleEditPerfume}
+          onDelete={handleDeletePerfume}
+        />
+      </AnimatedListItemElegant>
     ),
     [handleEditPerfume, handleDeletePerfume],
   );
@@ -275,14 +285,14 @@ export default function Index() {
     [],
   );
 
-  if (isLoading || isSearchingNow) {
+  if (isLoading || isActuallySearching) {
     return (
       <SafeAreaView className="flex-1 bg-white">
         <Header
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           searchResultsCount={perfumes.length}
-          isSearching={isSearchingNow}
+          isSearching={isActuallySearching}
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
           onPressDocument={handleGeneratePDF}
@@ -296,23 +306,26 @@ export default function Index() {
             onClearAll={handleClearAllFilters}
           />
         )}
-        <View className="flex-1 justify-center items-center pb-24">
-          <ActivityIndicator size="large" color="#6366f1" />
-          <Text className="mt-4 text-gray-600">
-            {isSearchingNow ? "Buscando..." : "Cargando perfumes..."}
-          </Text>
+        <View className="flex-1 pb-24">
+          <PerfumeListSkeleton count={6} />
         </View>
         <Footer onFABPress={handleFABPress} />
 
-        <AddPerfumeModal
-          key={isAddPerfumeModalVisible ? "open" : "closed"}
+        <AnimatedModal
           visible={isAddPerfumeModalVisible}
-          onClose={handleCloseModal}
-          brands={brands}
-          primaryColor="#603780"
-          mode={editingPerfume ? "edit" : "create"}
-          editingPerfume={editingPerfume || undefined}
-        />
+          onRequestClose={handleCloseModal}
+          animationType="fade"
+        >
+          <AddPerfumeModal
+            key={isAddPerfumeModalVisible ? "open" : "closed"}
+            visible={isAddPerfumeModalVisible}
+            onClose={handleCloseModal}
+            brands={brands}
+            primaryColor="#603780"
+            mode={editingPerfume ? "edit" : "create"}
+            editingPerfume={editingPerfume || undefined}
+          />
+        </AnimatedModal>
         <FilterModal
           visible={isFilterModalVisible}
           onClose={handleCloseFilterModal}
@@ -324,14 +337,14 @@ export default function Index() {
     );
   }
 
-  if (error) {
+  if (_error) {
     return (
       <SafeAreaView className="flex-1 bg-white">
         <Header
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           searchResultsCount={perfumes.length}
-          isSearching={isSearchingNow}
+          isSearching={isActuallySearching}
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
           onPressDocument={handleGeneratePDF}
@@ -363,7 +376,7 @@ export default function Index() {
                 Error al cargar los perfumes
               </Text>
               <Text className="text-gray-600 text-center mt-2">
-                {error.message || "Intenta nuevamente más tarde"}
+                {_error.message || "Intenta nuevamente más tarde"}
               </Text>
               <Text className="text-gray-400 text-center mt-4">
                 Desliza hacia abajo para actualizar
@@ -373,15 +386,21 @@ export default function Index() {
         />
         <Footer onFABPress={handleFABPress} />
 
-        <AddPerfumeModal
-          key={isAddPerfumeModalVisible ? "open" : "closed"}
+        <AnimatedModal
           visible={isAddPerfumeModalVisible}
-          onClose={handleCloseModal}
-          brands={brands}
-          primaryColor="#603780"
-          mode={editingPerfume ? "edit" : "create"}
-          editingPerfume={editingPerfume || undefined}
-        />
+          onRequestClose={handleCloseModal}
+          animationType="fade"
+        >
+          <AddPerfumeModal
+            key={isAddPerfumeModalVisible ? "open" : "closed"}
+            visible={isAddPerfumeModalVisible}
+            onClose={handleCloseModal}
+            brands={brands}
+            primaryColor="#603780"
+            mode={editingPerfume ? "edit" : "create"}
+            editingPerfume={editingPerfume || undefined}
+          />
+        </AnimatedModal>
         <FilterModal
           visible={isFilterModalVisible}
           onClose={handleCloseFilterModal}
@@ -398,8 +417,7 @@ export default function Index() {
     hasFilters &&
     !debouncedSearchQuery.trim() &&
     perfumes.length === 0 &&
-    !isLoading &&
-    !isSearchingNow
+    shouldShowResults
   ) {
     return (
       <SafeAreaView className="flex-1 bg-white">
@@ -442,8 +460,7 @@ export default function Index() {
   if (
     debouncedSearchQuery.trim() &&
     perfumes.length === 0 &&
-    !isLoading &&
-    !isSearchingNow
+    shouldShowResults
   ) {
     return (
       <SafeAreaView className="flex-1 bg-white">
@@ -514,15 +531,21 @@ export default function Index() {
         />
         <Footer onFABPress={handleFABPress} />
 
-        <AddPerfumeModal
-          key={isAddPerfumeModalVisible ? "open" : "closed"}
+        <AnimatedModal
           visible={isAddPerfumeModalVisible}
-          onClose={handleCloseModal}
-          brands={brands}
-          primaryColor="#603780"
-          mode={editingPerfume ? "edit" : "create"}
-          editingPerfume={editingPerfume || undefined}
-        />
+          onRequestClose={handleCloseModal}
+          animationType="fade"
+        >
+          <AddPerfumeModal
+            key={isAddPerfumeModalVisible ? "open" : "closed"}
+            visible={isAddPerfumeModalVisible}
+            onClose={handleCloseModal}
+            brands={brands}
+            primaryColor="#603780"
+            mode={editingPerfume ? "edit" : "create"}
+            editingPerfume={editingPerfume || undefined}
+          />
+        </AnimatedModal>
         <FilterModal
           visible={isFilterModalVisible}
           onClose={handleCloseFilterModal}

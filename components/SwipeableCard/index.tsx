@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { memo, useCallback, useRef } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Animated, Pressable, View } from "react-native";
 import {
   PanGestureHandler,
@@ -14,6 +14,8 @@ type SwipeableCardProps = {
   editButtonColor?: string; // color botón derecho (EDITAR)
   deleteButtonColor?: string; // color botón izquierdo (ELIMINAR)
   swipeThreshold?: number; // ancho de revelado
+  hideButtonsInitially?: boolean; // ocultar botones hasta que termine la animación
+  animationDelay?: number; // delay para mostrar botones después de la animación
 };
 
 export const SwipeableCard: React.FC<SwipeableCardProps> = memo(
@@ -24,6 +26,8 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = memo(
     editButtonColor = "#FF9500",
     deleteButtonColor = "#FF3B30",
     swipeThreshold = 120,
+    hideButtonsInitially = false,
+    animationDelay = 800, // 800ms por defecto para que coincida con la animación de staggering
   }) => {
     // dragX: gesto actual; offsetX: posición "snappeada"; translateX = dragX + offsetX
     const dragX = useRef(new Animated.Value(0)).current;
@@ -32,6 +36,20 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = memo(
 
     // Guardamos el último snap numérico para no leer valores internos de Animated
     const lastSnap = useRef(0);
+
+    // Estado para controlar la visibilidad de los botones
+    const [showButtons, setShowButtons] = useState(!hideButtonsInitially);
+
+    // Efecto para mostrar los botones después del delay de animación
+    useEffect(() => {
+      if (hideButtonsInitially) {
+        const timer = setTimeout(() => {
+          setShowButtons(true);
+        }, animationDelay);
+
+        return () => clearTimeout(timer);
+      }
+    }, [hideButtonsInitially, animationDelay]);
 
     const onGestureEvent = Animated.event<
       PanGestureHandlerGestureEvent["nativeEvent"]
@@ -89,61 +107,65 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = memo(
       <View
         style={{ position: "relative", borderRadius: 16, overflow: "hidden" }}
       >
-        {/* FONDO: botones SIEMPRE visibles detrás */}
+        {/* FONDO: botones solo visibles después de la animación */}
 
-        {/* IZQUIERDA: ELIMINAR (se muestra al deslizar a la DERECHA → translateX positivo) */}
-        <View
-          pointerEvents="box-none"
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: swipeThreshold,
-            backgroundColor: deleteButtonColor,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Pressable
-            onPress={handleDelete}
-            style={{
-              width: "100%",
-              height: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Ionicons name="trash" size={24} color="#fff" />
-          </Pressable>
-        </View>
+        {showButtons && (
+          <>
+            {/* IZQUIERDA: ELIMINAR (se muestra al deslizar a la DERECHA → translateX positivo) */}
+            <View
+              pointerEvents="box-none"
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: swipeThreshold,
+                backgroundColor: deleteButtonColor,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Pressable
+                onPress={handleDelete}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Ionicons name="trash" size={24} color="#fff" />
+              </Pressable>
+            </View>
 
-        {/* DERECHA: EDITAR (se muestra al deslizar a la IZQUIERDA → translateX negativo) */}
-        <View
-          pointerEvents="box-none"
-          style={{
-            position: "absolute",
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: swipeThreshold,
-            backgroundColor: editButtonColor,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Pressable
-            onPress={handleEdit}
-            style={{
-              width: "100%",
-              height: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Ionicons name="pencil" size={24} color="#fff" />
-          </Pressable>
-        </View>
+            {/* DERECHA: EDITAR (se muestra al deslizar a la IZQUIERDA → translateX negativo) */}
+            <View
+              pointerEvents="box-none"
+              style={{
+                position: "absolute",
+                right: 0,
+                top: 0,
+                bottom: 0,
+                width: swipeThreshold,
+                backgroundColor: editButtonColor,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Pressable
+                onPress={handleEdit}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Ionicons name="pencil" size={24} color="#fff" />
+              </Pressable>
+            </View>
+          </>
+        )}
 
         {/* CONTENIDO: se traslada para descubrir los botones */}
         <PanGestureHandler

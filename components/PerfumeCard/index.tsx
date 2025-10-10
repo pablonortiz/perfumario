@@ -173,10 +173,15 @@ const ProductCard: React.FC<Props> = memo(
       <SwipeableCard
         onEdit={handleEdit}
         onDelete={handleDelete}
-        editButtonColor="#FF9500"
-        deleteButtonColor="#FF3B30"
+        editButtonColor="#6366F1"
+        deleteButtonColor="#EF4444"
+        hideButtonsInitially={true}
+        animationDelay={800}
       >
-        <View className="bg-white rounded-2xl shadow-md m-4 p-4 mb-4 relative">
+        <View
+          className="rounded-2xl shadow-md m-4 p-4 mb-4 relative"
+          style={{ backgroundColor: "#FFFFFF" }}
+        >
           {/* Loading overlay */}
           {updateStockMutation.isPending && (
             <View className="absolute inset-0 bg-white/80 rounded-2xl z-10 flex items-center justify-center">
