@@ -341,6 +341,11 @@ export default function Index() {
           setSearchQuery={setSearchQuery}
           searchResultsCount={0}
           isSearching={false}
+          onPressFilters={() => {
+            console.log("Passing handleOpenFilters to Header");
+            handleOpenFilters();
+          }}
+          hasActiveFilters={!!hasFilters}
         />
         <FlatList
           data={[]}
@@ -400,6 +405,11 @@ export default function Index() {
         setSearchQuery={setSearchQuery}
         searchResultsCount={perfumes.length}
         isSearching={isSearchingNow}
+        onPressFilters={() => {
+          console.log("Passing handleOpenFilters to Header");
+          handleOpenFilters();
+        }}
+        hasActiveFilters={!!hasFilters}
       />
       <FlatList
         data={perfumes}
