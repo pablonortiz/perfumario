@@ -50,7 +50,12 @@ const Header: FC<HeaderProps> = ({
         <Pressable
           onPress={() => {
             console.log("Filter button pressed");
-            onPressFilters?.();
+            console.log("onPressFilters function:", onPressFilters);
+            if (onPressFilters) {
+              onPressFilters();
+            } else {
+              console.log("onPressFilters is undefined!");
+            }
           }}
           className={`w-12 h-12 rounded-full items-center justify-center ${
             hasActiveFilters ? "bg-white" : "bg-white/20"
