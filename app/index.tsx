@@ -1,3 +1,4 @@
+import { BrandManagementModal } from "@/components/BrandManagementModal";
 import { FilterChips } from "@/components/FilterChips";
 import { FilterModal } from "@/components/FilterModal";
 import Footer from "@/components/Footer";
@@ -25,6 +26,8 @@ export default function Index() {
   const [isAddPerfumeModalVisible, setIsAddPerfumeModalVisible] =
     useState(false);
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
+  const [isBrandManagementModalVisible, setIsBrandManagementModalVisible] =
+    useState(false);
   const [editingPerfume, setEditingPerfume] = useState<{
     id: string;
     name: string;
@@ -217,14 +220,17 @@ export default function Index() {
     setIsFilterModalVisible(false);
   }, []);
 
+  const handleOpenBrandManagement = useCallback(() => {
+    setIsBrandManagementModalVisible(true);
+  }, []);
+
+  const handleCloseBrandManagement = useCallback(() => {
+    setIsBrandManagementModalVisible(false);
+  }, []);
+
   const handleGeneratePDF = useCallback(async (): Promise<boolean> => {
-    console.log("handleGeneratePDF called");
-    console.log("allPerfumesForPDF length:", allPerfumesForPDF.length);
-    console.log("brands length:", brands.length);
-    
     try {
       if (allPerfumesForPDF.length === 0) {
-        console.log("No perfumes available for PDF");
         Alert.alert(
           "Sin datos",
           "No hay perfumes disponibles para generar el reporte.",
@@ -233,16 +239,13 @@ export default function Index() {
         return false;
       }
 
-      console.log("Starting PDF generation...");
       await generatePDFMutation.mutateAsync({
         perfumes: allPerfumesForPDF,
         brands: brands,
       });
 
-      console.log("PDF generation completed successfully");
       return true;
     } catch (error) {
-      console.log("Error generating PDF:", error);
       Alert.alert("Error", "No se pudo generar el PDF. Intenta nuevamente.", [
         { text: "OK" },
       ]);
@@ -283,6 +286,7 @@ export default function Index() {
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
           onPressDocument={handleGeneratePDF}
+          onPressBrandManagement={handleOpenBrandManagement}
         />
         {hasFilters && (
           <FilterChips
@@ -331,6 +335,7 @@ export default function Index() {
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
           onPressDocument={handleGeneratePDF}
+          onPressBrandManagement={handleOpenBrandManagement}
         />
         {hasFilters && (
           <FilterChips
@@ -406,6 +411,7 @@ export default function Index() {
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
           onPressDocument={handleGeneratePDF}
+          onPressBrandManagement={handleOpenBrandManagement}
         />
         <FilterChips
           filters={filters}
@@ -449,6 +455,7 @@ export default function Index() {
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
           onPressDocument={handleGeneratePDF}
+          onPressBrandManagement={handleOpenBrandManagement}
         />
         {hasFilters && (
           <FilterChips
@@ -536,6 +543,8 @@ export default function Index() {
         isSearching={isSearchingNow}
         onPressFilters={handleOpenFilters}
         hasActiveFilters={!!hasFilters}
+        onPressDocument={handleGeneratePDF}
+        onPressBrandManagement={handleOpenBrandManagement}
       />
       {hasFilters && (
         <FilterChips
@@ -581,6 +590,12 @@ export default function Index() {
         onApplyFilters={handleApplyFilters}
         brands={brands}
         currentFilters={filters}
+      />
+      <BrandManagementModal
+        visible={isBrandManagementModalVisible}
+        onClose={handleCloseBrandManagement}
+        brands={brands}
+        perfumes={perfumes}
       />
     </SafeAreaView>
   );

@@ -1,14 +1,15 @@
 import Logo from "@/assets/images/logo-transparent.png";
+import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import React, { Dispatch, FC, SetStateAction, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { Searchbar } from "react-native-paper";
-import { Ionicons } from "@expo/vector-icons";
 
 interface HeaderProps {
   searchQuery: string;
   setSearchQuery: Dispatch<SetStateAction<string>>;
   onPressDocument?: () => Promise<boolean>;
+  onPressBrandManagement?: () => void;
   searchResultsCount?: number;
   isSearching?: boolean;
   onPressFilters?: () => void;
@@ -19,6 +20,7 @@ const Header: FC<HeaderProps> = ({
   searchQuery,
   setSearchQuery,
   onPressDocument,
+  onPressBrandManagement,
   searchResultsCount,
   isSearching,
   onPressFilters,
@@ -27,14 +29,9 @@ const Header: FC<HeaderProps> = ({
   const [isDocumentButtonLoading, setIsDocumentButtonLoading] = useState(false);
 
   const handlePressDocument = async () => {
-    console.log("Document button pressed");
-    console.log("onPressDocument function:", onPressDocument);
     setIsDocumentButtonLoading(true);
     if (onPressDocument) {
-      console.log("Calling onPressDocument...");
       await onPressDocument();
-    } else {
-      console.log("onPressDocument is undefined!");
     }
     setIsDocumentButtonLoading(false);
   };
@@ -45,24 +42,43 @@ const Header: FC<HeaderProps> = ({
         <Image source={Logo} style={{ width: 50, height: 50 }} />
         <View className="flex-1 mx-3">
           <Searchbar
-            style={{ flex: 1 }}
-            placeholder="Buscar perfumes"
+            style={{
+              flex: 1,
+              height: 40,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            inputStyle={{
+              textAlignVertical: "center",
+              paddingTop: 0,
+              paddingBottom: 0,
+              marginTop: 0,
+              marginBottom: 0,
+              lineHeight: 20,
+            }}
+            placeholder="Buscar"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
         </View>
-        <View className="flex-row items-center gap-3">
-        <Pressable
-          onPress={onPressFilters}
-          className={`w-12 h-12 rounded-full items-center justify-center ${
-            hasActiveFilters ? "bg-white" : "bg-white/20"
-          }`}
-        >
+        <View className="flex-row items-center gap-2">
+          <Pressable
+            onPress={onPressFilters}
+            className={`w-12 h-12 rounded-full items-center justify-center ${
+              hasActiveFilters ? "bg-white" : "bg-white/20"
+            }`}
+          >
             <Ionicons
               name="filter"
               size={20}
               color={hasActiveFilters ? "#7C3AED" : "#FFFFFF"}
             />
+          </Pressable>
+          <Pressable
+            onPress={onPressBrandManagement}
+            className="w-12 h-12 rounded-full items-center justify-center bg-white/20"
+          >
+            <Ionicons name="settings" size={20} color="#FFFFFF" />
           </Pressable>
           <Pressable
             onPress={handlePressDocument}
@@ -77,21 +93,20 @@ const Header: FC<HeaderProps> = ({
           </Pressable>
         </View>
       </View>
-      
+
       {/* Search results indicator */}
       {searchQuery.trim() && (
         <View className="px-4 py-2 bg-violet-100">
           <Text className="text-violet-700 text-sm font-medium">
-            {isSearching 
-              ? "Buscando..." 
-              : searchResultsCount !== undefined 
-                ? `${searchResultsCount} resultado${searchResultsCount !== 1 ? 's' : ''} encontrado${searchResultsCount !== 1 ? 's' : ''}`
-                : ""
-            }
+            {isSearching
+              ? "Buscando..."
+              : searchResultsCount !== undefined
+                ? `${searchResultsCount} resultado${searchResultsCount !== 1 ? "s" : ""} encontrado${searchResultsCount !== 1 ? "s" : ""}`
+                : ""}
           </Text>
         </View>
       )}
-      
+
       <View className="p-2 bg-violet-400" />
       <View className="bg-violet-400">
         <View className="p-2 rounded-s-full bg-white" />
