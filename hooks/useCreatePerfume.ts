@@ -49,7 +49,9 @@ export const useCreatePerfume = () => {
       // Invalidar la query de perfumes para refrescar la lista
       queryClient.invalidateQueries({ queryKey: ["perfumes"] });
 
-      console.log("Perfume creado exitosamente:", newPerfume);
+      if (__DEV__) {
+        console.log("Perfume creado exitosamente:", newPerfume);
+      }
     },
     onError: (error) => {
       console.error("Error al crear perfume:", error);

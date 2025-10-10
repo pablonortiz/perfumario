@@ -46,7 +46,9 @@ export const useCreateBrand = () => {
       // También invalidar perfumes por si hay cambios
       queryClient.invalidateQueries({ queryKey: ["perfumes"] });
 
-      console.log("Marca creada exitosamente:", newBrand);
+      if (__DEV__) {
+        console.log("Marca creada exitosamente:", newBrand);
+      }
     },
     onError: (error) => {
       console.error("Error al crear marca:", error);
