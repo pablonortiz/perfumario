@@ -193,6 +193,8 @@ export default function Index() {
     setIsFilterModalVisible(true);
   }, []);
 
+  console.log("handleOpenFilters function:", handleOpenFilters);
+
   const handleCloseFilterModal = useCallback(() => {
     setIsFilterModalVisible(false);
   }, []);
