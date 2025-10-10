@@ -11,7 +11,7 @@ interface HeaderProps {
   onPressDocument?: () => Promise<boolean>;
   searchResultsCount?: number;
   isSearching?: boolean;
-  onPressFilters?: () => void;
+  onPressFilters: () => void;
   hasActiveFilters?: boolean;
 }
 
@@ -49,13 +49,8 @@ const Header: FC<HeaderProps> = ({
         <View className="flex-row items-center gap-3">
         <Pressable
           onPress={() => {
-            console.log("Filter button pressed");
-            console.log("onPressFilters function:", onPressFilters);
-            if (onPressFilters) {
-              onPressFilters();
-            } else {
-              console.log("onPressFilters is undefined!");
-            }
+            console.log("Filter button pressed, calling onPressFilters");
+            onPressFilters();
           }}
           className={`w-12 h-12 rounded-full items-center justify-center ${
             hasActiveFilters ? "bg-white" : "bg-white/20"
