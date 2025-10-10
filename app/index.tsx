@@ -327,6 +327,43 @@ export default function Index() {
     );
   }
 
+  // Mostrar mensaje si hay filtros pero no hay resultados y no hay búsqueda
+  if (hasFilters && !debouncedSearchQuery.trim() && perfumes.length === 0 && !isLoading && !isSearchingNow) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <Header 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery}
+          searchResultsCount={0}
+          isSearching={false}
+          onPressFilters={handleOpenFilters}
+          hasActiveFilters={!!hasFilters}
+        />
+        <FilterChips
+          filters={filters}
+          brands={brands}
+          onRemoveFilter={handleRemoveFilter}
+          onClearAll={handleClearAllFilters}
+        />
+        <View className="flex-1 justify-center items-center px-8">
+          <Text className="text-gray-500 text-lg font-semibold text-center">
+            No se encontraron perfumes
+          </Text>
+          <Text className="text-gray-400 text-center mt-2">
+            con los filtros seleccionados
+          </Text>
+          <Text className="text-gray-400 text-center mt-2">
+            Intenta cambiar o quitar algunos filtros
+          </Text>
+          <Text className="text-gray-400 text-center mt-2">
+            O presiona "Limpiar todo" en los filtros
+          </Text>
+        </View>
+        <Footer onFABPress={handleFABPress} />
+      </SafeAreaView>
+    );
+  }
+
   // Mostrar mensaje si no hay resultados de búsqueda
   if (debouncedSearchQuery.trim() && perfumes.length === 0 && !isLoading && !isSearchingNow) {
     return (
@@ -339,6 +376,14 @@ export default function Index() {
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
         />
+        {hasFilters && (
+          <FilterChips
+            filters={filters}
+            brands={brands}
+            onRemoveFilter={handleRemoveFilter}
+            onClearAll={handleClearAllFilters}
+          />
+        )}
         <FlatList
           data={[]}
           renderItem={() => null}
@@ -420,6 +465,14 @@ export default function Index() {
         onPressFilters={handleOpenFilters}
         hasActiveFilters={!!hasFilters}
       />
+      {hasFilters && (
+        <FilterChips
+          filters={filters}
+          brands={brands}
+          onRemoveFilter={handleRemoveFilter}
+          onClearAll={handleClearAllFilters}
+        />
+      )}
       <FlatList
         data={perfumes}
         renderItem={renderPerfumeItem}
