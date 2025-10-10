@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 const RNHTMLtoPDF = require("react-native-html-to-pdf");
-import Share from "react-native-share";
+import * as Sharing from "expo-sharing";
 import { PerfumeFromAPI, BrandFromAPI } from "@/types/perfume";
 
 interface GeneratePDFRequest {
@@ -379,14 +379,19 @@ export const useGeneratePDF = () => {
     mutationFn: generatePDF,
     onSuccess: async (pdf) => {
       try {
-        // Compartir el PDF
-        await Share.open({
-          url: `file://${pdf.filePath}`,
-          type: 'application/pdf',
-          title: 'Inventario de Perfumes',
-          message: 'Reporte completo del inventario de perfumes',
-          subject: 'Inventario de Perfumes',
-        });
+        // Verificar si sharing está disponible
+        const isAvailable = await Sharing.isAvailableAsync();
+        if (isAvailable) {
+          // Compartir el PDF usando expo-sharing
+          await Sharing.shareAsync(pdf.filePath, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Compartir Inventario de Perfumes',
+          });
+        } else {
+          if (__DEV__) {
+            console.log('Sharing is not available on this device');
+          }
+        }
       } catch (error) {
         if (__DEV__) {
           console.log('Error sharing PDF:', error);
