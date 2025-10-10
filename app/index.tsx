@@ -2,6 +2,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import PerfumeCard from "@/components/PerfumeCard";
 import { useBrands } from "@/hooks/useBrands";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import { useDeletePerfume } from "@/hooks/useDeletePerfume";
 import { usePerfumes } from "@/hooks/usePerfumes";
 import { usePerfumeSearch } from "@/hooks/usePerfumeSearch";
@@ -27,6 +28,9 @@ export default function Index() {
   const queryClient = useQueryClient();
   const deletePerfumeMutation = useDeletePerfume();
 
+  // Debounced search para evitar demasiadas llamadas a la API
+  const debouncedSearchQuery = useDebouncedSearch(searchQuery, 500);
+
   // Usar búsqueda si hay query, sino mostrar todos los perfumes
   const {
     data: allPerfumes = [],
@@ -39,14 +43,17 @@ export default function Index() {
     isLoading: isSearching,
     error: searchError,
     refetch: refetchSearch,
-  } = usePerfumeSearch(searchQuery);
+  } = usePerfumeSearch(debouncedSearchQuery);
 
   // Obtener marcas para el modal
   const { data: brands = [] } = useBrands();
 
-  const perfumes = searchQuery.trim() ? searchResults : allPerfumes;
-  const isLoading = searchQuery.trim() ? isSearching : isLoadingAll;
-  const error = searchQuery.trim() ? searchError : errorAll;
+  const perfumes = debouncedSearchQuery.trim() ? searchResults : allPerfumes;
+  const isLoading = debouncedSearchQuery.trim() ? isSearching : isLoadingAll;
+  const error = debouncedSearchQuery.trim() ? searchError : errorAll;
+  
+  // Estado de búsqueda para mostrar indicadores visuales
+  const isSearchingNow = searchQuery.trim() !== debouncedSearchQuery.trim();
 
   // Función para manejar el pull to refresh
   const handleRefresh = async () => {
@@ -56,7 +63,7 @@ export default function Index() {
       await queryClient.invalidateQueries({ queryKey: ["perfumes"] });
       await queryClient.invalidateQueries({ queryKey: ["brands"] });
 
-      if (searchQuery.trim()) {
+      if (debouncedSearchQuery.trim()) {
         await refetchSearch();
       } else {
         await refetchPerfumes();
@@ -137,13 +144,20 @@ export default function Index() {
   const keyExtractor = useCallback((item: any, index: number) => 
     `${item.id || item.name || index}`, []);
 
-  if (isLoading) {
+  if (isLoading || isSearchingNow) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <Header 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery}
+          searchResultsCount={perfumes.length}
+          isSearching={isSearchingNow}
+        />
         <View className="flex-1 justify-center items-center pb-24">
           <ActivityIndicator size="large" color="#6366f1" />
-          <Text className="mt-4 text-gray-600">Cargando perfumes...</Text>
+          <Text className="mt-4 text-gray-600">
+            {isSearchingNow ? "Buscando..." : "Cargando perfumes..."}
+          </Text>
         </View>
         <Footer onFABPress={handleFABPress} />
 
@@ -163,7 +177,12 @@ export default function Index() {
   if (error) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <Header 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery}
+          searchResultsCount={perfumes.length}
+          isSearching={isSearchingNow}
+        />
         <FlatList
           data={[]}
           renderItem={() => null}
@@ -206,10 +225,15 @@ export default function Index() {
   }
 
   // Mostrar mensaje si no hay resultados de búsqueda
-  if (searchQuery.trim() && perfumes.length === 0 && !isLoading) {
+  if (debouncedSearchQuery.trim() && perfumes.length === 0 && !isLoading && !isSearchingNow) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <Header 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery}
+          searchResultsCount={0}
+          isSearching={false}
+        />
         <FlatList
           data={[]}
           renderItem={() => null}
@@ -223,12 +247,15 @@ export default function Index() {
             paddingBottom: 100,
           }}
           ListEmptyComponent={
-            <View className="items-center">
-              <Text className="text-gray-500 text-lg text-center">
-                No se encontraron perfumes para &ldquo;{searchQuery}&rdquo;
+            <View className="items-center px-8">
+              <Text className="text-gray-500 text-lg font-semibold text-center">
+                No se encontraron perfumes
               </Text>
               <Text className="text-gray-400 text-center mt-2">
-                Intenta con otros términos de búsqueda
+                No hay resultados para "{debouncedSearchQuery}"
+              </Text>
+              <Text className="text-gray-400 text-center mt-2">
+                Intenta con otros términos de búsqueda o verifica la ortografía
               </Text>
               <Text className="text-gray-400 text-center mt-4">
                 Desliza hacia abajo para actualizar
@@ -253,7 +280,12 @@ export default function Index() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <Header 
+        searchQuery={searchQuery} 
+        setSearchQuery={setSearchQuery}
+        searchResultsCount={perfumes.length}
+        isSearching={isSearchingNow}
+      />
       <FlatList
         data={perfumes}
         renderItem={renderPerfumeItem}
