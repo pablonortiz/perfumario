@@ -7,7 +7,7 @@ import { usePerfumes } from "@/hooks/usePerfumes";
 import { usePerfumeSearch } from "@/hooks/usePerfumeSearch";
 import { AddPerfumeModal } from "@/src/components/modals/AddPerfumeModal";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { ActivityIndicator, Alert, FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
@@ -79,8 +79,8 @@ export default function Index() {
     setEditingPerfume(null);
   };
 
-  // Función para manejar la edición de un perfume
-  const handleEditPerfume = (perfume: {
+  // Función para manejar la edición de un perfume - memoizada
+  const handleEditPerfume = useCallback((perfume: {
     id: string;
     name: string;
     gender: "male" | "female" | "unisex";
@@ -89,10 +89,10 @@ export default function Index() {
   }) => {
     setEditingPerfume(perfume);
     setIsAddPerfumeModalVisible(true);
-  };
+  }, []);
 
-  // Función para manejar la eliminación de un perfume
-  const handleDeletePerfume = (perfumeId: string) => {
+  // Función para manejar la eliminación de un perfume - memoizada
+  const handleDeletePerfume = useCallback((perfumeId: string) => {
     Alert.alert(
       "Eliminar perfume",
       "¿Estás seguro de que quieres eliminar este perfume? Esta acción es irreversible.",
@@ -118,7 +118,24 @@ export default function Index() {
         },
       ],
     );
-  };
+  }, [deletePerfumeMutation]);
+
+  // RenderItem memoizado para el FlatList
+  const renderPerfumeItem = useCallback(({ item }: { item: any }) => (
+    <PerfumeCard
+      id={item.id || ""}
+      gender={item.gender || "unisex"}
+      name={item.name || ""}
+      brandId={item.brandId || ""}
+      stock={item.stock || 0}
+      onEdit={handleEditPerfume}
+      onDelete={handleDeletePerfume}
+    />
+  ), [handleEditPerfume, handleDeletePerfume]);
+
+  // KeyExtractor memoizado
+  const keyExtractor = useCallback((item: any, index: number) => 
+    `${item.id || item.name || index}`, []);
 
   if (isLoading) {
     return (
@@ -239,22 +256,22 @@ export default function Index() {
       <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       <FlatList
         data={perfumes}
-        renderItem={({ item }) => (
-          <PerfumeCard
-            id={item.id || ""}
-            gender={item.gender || "unisex"}
-            name={item.name || ""}
-            brandId={item.brandId || ""}
-            stock={item.stock || 0}
-            onEdit={handleEditPerfume}
-            onDelete={handleDeletePerfume}
-          />
-        )}
-        keyExtractor={(item, index) => `${item.name}-${index}`}
+        renderItem={renderPerfumeItem}
+        keyExtractor={keyExtractor}
         showsVerticalScrollIndicator={false}
         refreshing={isRefreshing}
         onRefresh={handleRefresh}
         contentContainerStyle={{ paddingBottom: 100 }}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        initialNumToRender={10}
+        windowSize={10}
+        getItemLayout={(data, index) => ({
+          length: 200, // Altura aproximada de cada item
+          offset: 200 * index,
+          index,
+        })}
       />
       <Footer onFABPress={handleFABPress} />
 
