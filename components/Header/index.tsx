@@ -36,37 +36,41 @@ const Header: FC<HeaderProps> = ({
 
   return (
     <View>
-      <View className="flex-row p-4 bg-violet-500 gap-3">
+      <View className="flex-row items-center justify-between p-4 bg-violet-500 gap-3">
         <Image source={Logo} style={{ width: 50, height: 50 }} />
-        <Searchbar
-          style={{ flex: 1 }}
-          placeholder="Buscar perfumes"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        <Pressable
-          onPress={onPressFilters}
-          className={`w-12 h-12 rounded-full items-center justify-center ${
-            hasActiveFilters ? "bg-white" : "bg-white/20"
-          }`}
-        >
-          <Ionicons
-            name="filter"
-            size={20}
-            color={hasActiveFilters ? "#7C3AED" : "#FFFFFF"}
+        <View className="flex-1 mx-3">
+          <Searchbar
+            style={{ flex: 1 }}
+            placeholder="Buscar perfumes"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
           />
-        </Pressable>
-        <Pressable
-          onPress={handlePressDocument}
-          className="w-12 h-12 rounded-full items-center justify-center bg-white/20"
-          disabled={isDocumentButtonLoading}
-        >
-          {isDocumentButtonLoading ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <Ionicons name="document-text" size={20} color="#FFFFFF" />
-          )}
-        </Pressable>
+        </View>
+        <View className="flex-row items-center gap-3">
+          <Pressable
+            onPress={onPressFilters}
+            className={`w-12 h-12 rounded-full items-center justify-center ${
+              hasActiveFilters ? "bg-white" : "bg-white/20"
+            }`}
+          >
+            <Ionicons
+              name="filter"
+              size={20}
+              color={hasActiveFilters ? "#7C3AED" : "#FFFFFF"}
+            />
+          </Pressable>
+          <Pressable
+            onPress={handlePressDocument}
+            className="w-12 h-12 rounded-full items-center justify-center bg-white/20"
+            disabled={isDocumentButtonLoading}
+          >
+            {isDocumentButtonLoading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Ionicons name="document-text" size={20} color="#FFFFFF" />
+            )}
+          </Pressable>
+        </View>
       </View>
       
       {/* Search results indicator */}
