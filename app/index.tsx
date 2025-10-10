@@ -9,10 +9,12 @@ import { useDeletePerfume } from "@/hooks/useDeletePerfume";
 import { usePerfumes } from "@/hooks/usePerfumes";
 import { usePerfumeSearch } from "@/hooks/usePerfumeSearch";
 import { usePerfumeFilters } from "@/hooks/usePerfumeFilters";
+import { useAllPerfumes } from "@/hooks/useAllPerfumes";
+import { useGeneratePDF } from "@/hooks/useGeneratePDF";
 import { PerfumeFromAPI } from "@/types/perfume";
 import { AddPerfumeModal } from "@/src/components/modals/AddPerfumeModal";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import { ActivityIndicator, Alert, FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
@@ -64,6 +66,12 @@ export default function Index() {
 
   // Obtener marcas para el modal
   const { data: brands = [] } = useBrands();
+
+  // Obtener todos los perfumes para el PDF
+  const { data: allPerfumesForPDF = [] } = useAllPerfumes() as { data: PerfumeFromAPI[] };
+
+  // Hook para generar PDF
+  const generatePDFMutation = useGeneratePDF();
 
   // Lógica para determinar qué datos mostrar
   const hasSearch = debouncedSearchQuery.trim();
@@ -196,6 +204,33 @@ export default function Index() {
     setIsFilterModalVisible(false);
   }, []);
 
+  const handleGeneratePDF = useCallback(async (): Promise<boolean> => {
+    try {
+      if (allPerfumesForPDF.length === 0) {
+        Alert.alert(
+          "Sin datos",
+          "No hay perfumes disponibles para generar el reporte.",
+          [{ text: "OK" }]
+        );
+        return false;
+      }
+
+      await generatePDFMutation.mutateAsync({
+        perfumes: allPerfumesForPDF,
+        brands: brands,
+      });
+
+      return true;
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        "No se pudo generar el PDF. Intenta nuevamente.",
+        [{ text: "OK" }]
+      );
+      return false;
+    }
+  }, [allPerfumesForPDF, brands, generatePDFMutation]);
+
   // RenderItem memoizado para el FlatList
   const renderPerfumeItem = useCallback(({ item }: { item: any }) => (
     <PerfumeCard
@@ -223,6 +258,7 @@ export default function Index() {
           isSearching={isSearchingNow}
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
+          onPressDocument={handleGeneratePDF}
         />
         {hasFilters && (
           <FilterChips
@@ -270,6 +306,7 @@ export default function Index() {
           isSearching={isSearchingNow}
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
+          onPressDocument={handleGeneratePDF}
         />
         {hasFilters && (
           <FilterChips
@@ -338,6 +375,7 @@ export default function Index() {
           isSearching={false}
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
+          onPressDocument={handleGeneratePDF}
         />
         <FilterChips
           filters={filters}
@@ -356,7 +394,7 @@ export default function Index() {
             Intenta cambiar o quitar algunos filtros
           </Text>
           <Text className="text-gray-400 text-center mt-2">
-            O presiona "Limpiar todo" en los filtros
+                  O presiona &quot;Limpiar todo&quot; en los filtros
           </Text>
         </View>
         <Footer onFABPress={handleFABPress} />
@@ -375,6 +413,7 @@ export default function Index() {
           isSearching={false}
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
+          onPressDocument={handleGeneratePDF}
         />
         {hasFilters && (
           <FilterChips
@@ -403,7 +442,7 @@ export default function Index() {
               </Text>
               {hasSearch && (
                 <Text className="text-gray-400 text-center mt-2">
-                  No hay resultados para "{debouncedSearchQuery}"
+                  No hay resultados para &quot;{debouncedSearchQuery}&quot;
                 </Text>
               )}
               {hasFilters && (
@@ -424,7 +463,7 @@ export default function Index() {
               </Text>
               {hasFilters && (
                 <Text className="text-gray-400 text-center mt-2">
-                  O presiona "Limpiar todo" en los filtros
+                  O presiona &quot;Limpiar todo&quot; en los filtros
                 </Text>
               )}
               <Text className="text-gray-400 text-center mt-4">
