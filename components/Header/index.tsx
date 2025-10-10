@@ -47,12 +47,15 @@ const Header: FC<HeaderProps> = ({
           />
         </View>
         <View className="flex-row items-center gap-3">
-          <Pressable
-            onPress={onPressFilters}
-            className={`w-12 h-12 rounded-full items-center justify-center ${
-              hasActiveFilters ? "bg-white" : "bg-white/20"
-            }`}
-          >
+        <Pressable
+          onPress={() => {
+            console.log("Filter button pressed");
+            onPressFilters?.();
+          }}
+          className={`w-12 h-12 rounded-full items-center justify-center ${
+            hasActiveFilters ? "bg-white" : "bg-white/20"
+          }`}
+        >
             <Ionicons
               name="filter"
               size={20}

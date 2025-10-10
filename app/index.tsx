@@ -189,6 +189,7 @@ export default function Index() {
   }, []);
 
   const handleOpenFilters = useCallback(() => {
+    console.log("Opening filter modal...");
     setIsFilterModalVisible(true);
   }, []);
 
