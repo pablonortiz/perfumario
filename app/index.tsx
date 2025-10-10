@@ -224,12 +224,14 @@ export default function Index() {
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
         />
-        <FilterChips
-          filters={filters}
-          brands={brands}
-          onRemoveFilter={handleRemoveFilter}
-          onClearAll={handleClearAllFilters}
-        />
+        {hasFilters && (
+          <FilterChips
+            filters={filters}
+            brands={brands}
+            onRemoveFilter={handleRemoveFilter}
+            onClearAll={handleClearAllFilters}
+          />
+        )}
         <View className="flex-1 justify-center items-center pb-24">
           <ActivityIndicator size="large" color="#6366f1" />
           <Text className="mt-4 text-gray-600">
@@ -269,12 +271,14 @@ export default function Index() {
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
         />
-        <FilterChips
-          filters={filters}
-          brands={brands}
-          onRemoveFilter={handleRemoveFilter}
-          onClearAll={handleClearAllFilters}
-        />
+        {hasFilters && (
+          <FilterChips
+            filters={filters}
+            brands={brands}
+            onRemoveFilter={handleRemoveFilter}
+            onClearAll={handleClearAllFilters}
+          />
+        )}
         <FlatList
           data={[]}
           renderItem={() => null}
@@ -352,12 +356,32 @@ export default function Index() {
               <Text className="text-gray-500 text-lg font-semibold text-center">
                 No se encontraron perfumes
               </Text>
+              {hasSearch && (
+                <Text className="text-gray-400 text-center mt-2">
+                  No hay resultados para "{debouncedSearchQuery}"
+                </Text>
+              )}
+              {hasFilters && (
+                <Text className="text-gray-400 text-center mt-2">
+                  {hasSearch 
+                    ? "con los filtros aplicados" 
+                    : "con los filtros seleccionados"
+                  }
+                </Text>
+              )}
               <Text className="text-gray-400 text-center mt-2">
-                No hay resultados para "{debouncedSearchQuery}"
+                {hasSearch 
+                  ? "Intenta con otros términos de búsqueda o verifica la ortografía"
+                  : hasFilters 
+                    ? "Intenta cambiar o quitar algunos filtros"
+                    : "Desliza hacia abajo para actualizar"
+                }
               </Text>
-              <Text className="text-gray-400 text-center mt-2">
-                Intenta con otros términos de búsqueda o verifica la ortografía
-              </Text>
+              {hasFilters && (
+                <Text className="text-gray-400 text-center mt-2">
+                  O presiona "Limpiar todo" en los filtros
+                </Text>
+              )}
               <Text className="text-gray-400 text-center mt-4">
                 Desliza hacia abajo para actualizar
               </Text>
