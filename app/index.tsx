@@ -218,8 +218,13 @@ export default function Index() {
   }, []);
 
   const handleGeneratePDF = useCallback(async (): Promise<boolean> => {
+    console.log("handleGeneratePDF called");
+    console.log("allPerfumesForPDF length:", allPerfumesForPDF.length);
+    console.log("brands length:", brands.length);
+    
     try {
       if (allPerfumesForPDF.length === 0) {
+        console.log("No perfumes available for PDF");
         Alert.alert(
           "Sin datos",
           "No hay perfumes disponibles para generar el reporte.",
@@ -228,13 +233,16 @@ export default function Index() {
         return false;
       }
 
+      console.log("Starting PDF generation...");
       await generatePDFMutation.mutateAsync({
         perfumes: allPerfumesForPDF,
         brands: brands,
       });
 
+      console.log("PDF generation completed successfully");
       return true;
     } catch (error) {
+      console.log("Error generating PDF:", error);
       Alert.alert("Error", "No se pudo generar el PDF. Intenta nuevamente.", [
         { text: "OK" },
       ]);

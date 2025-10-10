@@ -27,9 +27,14 @@ const Header: FC<HeaderProps> = ({
   const [isDocumentButtonLoading, setIsDocumentButtonLoading] = useState(false);
 
   const handlePressDocument = async () => {
+    console.log("Document button pressed");
+    console.log("onPressDocument function:", onPressDocument);
     setIsDocumentButtonLoading(true);
     if (onPressDocument) {
+      console.log("Calling onPressDocument...");
       await onPressDocument();
+    } else {
+      console.log("onPressDocument is undefined!");
     }
     setIsDocumentButtonLoading(false);
   };
