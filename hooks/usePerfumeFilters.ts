@@ -43,6 +43,11 @@ const fetchPerfumesByBrand = async (brandId: string): Promise<PerfumeFromAPI[]> 
 const fetchPerfumesWithFilters = async (
   filters: FilterOptions
 ): Promise<PerfumeFromAPI[]> => {
+  // Validar que al menos un filtro esté presente
+  if (!filters.gender && !filters.brandId) {
+    return [];
+  }
+
   // Si solo hay filtro de género
   if (filters.gender && !filters.brandId) {
     return fetchPerfumesByGender(filters.gender);
@@ -68,12 +73,12 @@ const fetchPerfumesWithFilters = async (
     return intersection;
   }
 
-  // Sin filtros, devolver array vacío (se usará la query normal)
+  // Fallback: devolver array vacío
   return [];
 };
 
 export const usePerfumeFilters = (filters: FilterOptions) => {
-  const hasFilters = filters.gender || filters.brandId;
+  const hasFilters = Boolean(filters.gender || filters.brandId);
 
   return useQuery({
     queryKey: ["perfumes", "filters", filters],
