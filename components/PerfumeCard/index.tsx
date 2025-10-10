@@ -12,10 +12,12 @@ type Props = {
 };
 
 const ProductCard: React.FC<Props> = ({ gender, name, brandId, stock }) => {
-  const brandName = useBrandName(brandId);
   const isAvailable = stock > 0;
   const { genderBackgroundColor, genderIconColor, genderIconName } =
     getGenderProps(gender);
+
+  // Usar useBrandName para resolver el nombre de la marca
+  const brandName = useBrandName(brandId);
 
   return (
     <View className="bg-white rounded-2xl shadow-md m-4 p-4 mb-4">

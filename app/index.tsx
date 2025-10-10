@@ -1,7 +1,10 @@
+import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import PerfumeCard from "@/components/PerfumeCard";
+import { useBrands } from "@/hooks/useBrands";
 import { usePerfumes } from "@/hooks/usePerfumes";
 import { usePerfumeSearch } from "@/hooks/usePerfumeSearch";
+import { AddPerfumeModal } from "@/src/components/modals/AddPerfumeModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
@@ -11,6 +14,8 @@ import "../global.css";
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isAddPerfumeModalVisible, setIsAddPerfumeModalVisible] =
+    useState(false);
   const queryClient = useQueryClient();
 
   // Usar búsqueda si hay query, sino mostrar todos los perfumes
@@ -26,6 +31,9 @@ export default function Index() {
     error: searchError,
     refetch: refetchSearch,
   } = usePerfumeSearch(searchQuery);
+
+  // Obtener marcas para el modal
+  const { data: brands = [] } = useBrands();
 
   const perfumes = searchQuery.trim() ? searchResults : allPerfumes;
   const isLoading = searchQuery.trim() ? isSearching : isLoadingAll;
@@ -51,14 +59,33 @@ export default function Index() {
     }
   };
 
+  // Función para manejar el press del FloatingActionButton
+  const handleFABPress = () => {
+    setIsAddPerfumeModalVisible(true);
+  };
+
+  // Función para cerrar el modal
+  const handleCloseModal = () => {
+    setIsAddPerfumeModalVisible(false);
+  };
+
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-white">
         <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-        <View className="flex-1 justify-center items-center">
+        <View className="flex-1 justify-center items-center pb-24">
           <ActivityIndicator size="large" color="#6366f1" />
           <Text className="mt-4 text-gray-600">Cargando perfumes...</Text>
         </View>
+        <Footer onFABPress={handleFABPress} />
+
+        <AddPerfumeModal
+          key={isAddPerfumeModalVisible ? "open" : "closed"}
+          visible={isAddPerfumeModalVisible}
+          onClose={handleCloseModal}
+          brands={brands}
+          primaryColor="#603780"
+        />
       </SafeAreaView>
     );
   }
@@ -77,6 +104,7 @@ export default function Index() {
             justifyContent: "center",
             alignItems: "center",
             paddingHorizontal: 16,
+            paddingBottom: 100,
           }}
           ListEmptyComponent={
             <View className="items-center">
@@ -91,6 +119,15 @@ export default function Index() {
               </Text>
             </View>
           }
+        />
+        <Footer onFABPress={handleFABPress} />
+
+        <AddPerfumeModal
+          key={isAddPerfumeModalVisible ? "open" : "closed"}
+          visible={isAddPerfumeModalVisible}
+          onClose={handleCloseModal}
+          brands={brands}
+          primaryColor="#603780"
         />
       </SafeAreaView>
     );
@@ -111,6 +148,7 @@ export default function Index() {
             justifyContent: "center",
             alignItems: "center",
             paddingHorizontal: 16,
+            paddingBottom: 100,
           }}
           ListEmptyComponent={
             <View className="items-center">
@@ -126,6 +164,15 @@ export default function Index() {
             </View>
           }
         />
+        <Footer onFABPress={handleFABPress} />
+
+        <AddPerfumeModal
+          key={isAddPerfumeModalVisible ? "open" : "closed"}
+          visible={isAddPerfumeModalVisible}
+          onClose={handleCloseModal}
+          brands={brands}
+          primaryColor="#603780"
+        />
       </SafeAreaView>
     );
   }
@@ -139,7 +186,7 @@ export default function Index() {
           <PerfumeCard
             gender={item.gender || "unisex"}
             name={item.name || ""}
-            brandId={item.brand_id || ""}
+            brandId={item.brandId || ""}
             stock={item.stock || 0}
           />
         )}
@@ -147,7 +194,16 @@ export default function Index() {
         showsVerticalScrollIndicator={false}
         refreshing={isRefreshing}
         onRefresh={handleRefresh}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      />
+      <Footer onFABPress={handleFABPress} />
+
+      <AddPerfumeModal
+        key={isAddPerfumeModalVisible ? "open" : "closed"}
+        visible={isAddPerfumeModalVisible}
+        onClose={handleCloseModal}
+        brands={brands}
+        primaryColor="#603780"
       />
     </SafeAreaView>
   );

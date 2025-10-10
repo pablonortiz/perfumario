@@ -1,11 +1,11 @@
 import { useBrandsStore } from "@/stores/brandsStore";
+import { BrandFromAPI } from "@/types/perfume";
 import { useQuery } from "@tanstack/react-query";
-import { Brand } from "perfumario-schemas";
 import { useEffect } from "react";
 
 const API_BASE_URL = "https://perfumario-server.vercel.app";
 
-const fetchBrands = async (): Promise<Brand[]> => {
+const fetchBrands = async (): Promise<BrandFromAPI[]> => {
   const response = await fetch(`${API_BASE_URL}/brands`, {
     method: "GET",
     headers: {
