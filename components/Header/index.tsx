@@ -1,8 +1,9 @@
 import Logo from "@/assets/images/logo-transparent.png";
 import { Image } from "expo-image";
 import React, { Dispatch, FC, SetStateAction, useState } from "react";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { FAB, Searchbar } from "react-native-paper";
+import { Ionicons } from "@expo/vector-icons";
 
 interface HeaderProps {
   searchQuery: string;
@@ -10,6 +11,8 @@ interface HeaderProps {
   onPressDocument?: () => Promise<boolean>;
   searchResultsCount?: number;
   isSearching?: boolean;
+  onPressFilters?: () => void;
+  hasActiveFilters?: boolean;
 }
 
 const Header: FC<HeaderProps> = ({
@@ -18,6 +21,8 @@ const Header: FC<HeaderProps> = ({
   onPressDocument,
   searchResultsCount,
   isSearching,
+  onPressFilters,
+  hasActiveFilters,
 }) => {
   const [isDocumentButtonLoading, setIsDocumentButtonLoading] = useState(false);
 
@@ -31,7 +36,7 @@ const Header: FC<HeaderProps> = ({
 
   return (
     <View>
-      <View className="flex-row p-4 bg-violet-500 gap-5">
+      <View className="flex-row p-4 bg-violet-500 gap-3">
         <Image source={Logo} style={{ width: 50, height: 50 }} />
         <Searchbar
           style={{ flex: 1 }}
@@ -39,6 +44,18 @@ const Header: FC<HeaderProps> = ({
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
+        <Pressable
+          onPress={onPressFilters}
+          className={`w-12 h-12 rounded-full items-center justify-center ${
+            hasActiveFilters ? "bg-white" : "bg-white/20"
+          }`}
+        >
+          <Ionicons
+            name="filter"
+            size={20}
+            color={hasActiveFilters ? "#7C3AED" : "#FFFFFF"}
+          />
+        </Pressable>
         <FAB
           icon="file-document"
           size="medium"

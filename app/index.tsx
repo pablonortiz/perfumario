@@ -1,11 +1,15 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import PerfumeCard from "@/components/PerfumeCard";
+import { FilterChips } from "@/components/FilterChips";
+import { FilterModal } from "@/components/FilterModal";
 import { useBrands } from "@/hooks/useBrands";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import { useDeletePerfume } from "@/hooks/useDeletePerfume";
 import { usePerfumes } from "@/hooks/usePerfumes";
 import { usePerfumeSearch } from "@/hooks/usePerfumeSearch";
+import { usePerfumeFilters } from "@/hooks/usePerfumeFilters";
+import { PerfumeFromAPI } from "@/types/perfume";
 import { AddPerfumeModal } from "@/src/components/modals/AddPerfumeModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, useCallback, useMemo } from "react";
@@ -18,6 +22,7 @@ export default function Index() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isAddPerfumeModalVisible, setIsAddPerfumeModalVisible] =
     useState(false);
+  const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
   const [editingPerfume, setEditingPerfume] = useState<{
     id: string;
     name: string;
@@ -25,6 +30,10 @@ export default function Index() {
     brandId: string;
     stock: number;
   } | null>(null);
+  const [filters, setFilters] = useState<{
+    gender?: "male" | "female" | "unisex";
+    brandId?: string;
+  }>({});
   const queryClient = useQueryClient();
   const deletePerfumeMutation = useDeletePerfume();
 
@@ -45,13 +54,46 @@ export default function Index() {
     refetch: refetchSearch,
   } = usePerfumeSearch(debouncedSearchQuery);
 
+  // Filtros
+  const {
+    data: filteredResults = [],
+    isLoading: isLoadingFilters,
+    error: filtersError,
+    refetch: refetchFilters,
+  } = usePerfumeFilters(filters);
+
   // Obtener marcas para el modal
   const { data: brands = [] } = useBrands();
 
-  const perfumes = debouncedSearchQuery.trim() ? searchResults : allPerfumes;
-  const isLoading = debouncedSearchQuery.trim() ? isSearching : isLoadingAll;
-  const error = debouncedSearchQuery.trim() ? searchError : errorAll;
-  
+  // Lógica para determinar qué datos mostrar
+  const hasSearch = debouncedSearchQuery.trim();
+  const hasFilters = filters.gender || filters.brandId;
+
+  let perfumes = allPerfumes;
+  let isLoading = isLoadingAll;
+  let error = errorAll;
+
+  if (hasSearch && hasFilters) {
+    // Combinar búsqueda y filtros: filtrar los resultados de búsqueda
+    perfumes = searchResults.filter((perfume) => {
+      const matchesGender = !filters.gender || perfume.gender === filters.gender;
+      const matchesBrand = !filters.brandId || perfume.brandId === filters.brandId;
+      return matchesGender && matchesBrand;
+    });
+    isLoading = isSearching;
+    error = searchError;
+  } else if (hasSearch) {
+    // Solo búsqueda
+    perfumes = searchResults;
+    isLoading = isSearching;
+    error = searchError;
+  } else if (hasFilters) {
+    // Solo filtros
+    perfumes = filteredResults as PerfumeFromAPI[];
+    isLoading = isLoadingFilters;
+    error = filtersError;
+  }
+
   // Estado de búsqueda para mostrar indicadores visuales
   const isSearchingNow = searchQuery.trim() !== debouncedSearchQuery.trim();
 
@@ -127,6 +169,33 @@ export default function Index() {
     );
   }, [deletePerfumeMutation]);
 
+  // Funciones para manejar filtros
+  const handleApplyFilters = useCallback((newFilters: {
+    gender?: "male" | "female" | "unisex";
+    brandId?: string;
+  }) => {
+    setFilters(newFilters);
+  }, []);
+
+  const handleRemoveFilter = useCallback((filterType: "gender" | "brandId") => {
+    setFilters(prev => ({
+      ...prev,
+      [filterType]: undefined,
+    }));
+  }, []);
+
+  const handleClearAllFilters = useCallback(() => {
+    setFilters({});
+  }, []);
+
+  const handleOpenFilters = useCallback(() => {
+    setIsFilterModalVisible(true);
+  }, []);
+
+  const handleCloseFilterModal = useCallback(() => {
+    setIsFilterModalVisible(false);
+  }, []);
+
   // RenderItem memoizado para el FlatList
   const renderPerfumeItem = useCallback(({ item }: { item: any }) => (
     <PerfumeCard
@@ -152,6 +221,14 @@ export default function Index() {
           setSearchQuery={setSearchQuery}
           searchResultsCount={perfumes.length}
           isSearching={isSearchingNow}
+          onPressFilters={handleOpenFilters}
+          hasActiveFilters={!!hasFilters}
+        />
+        <FilterChips
+          filters={filters}
+          brands={brands}
+          onRemoveFilter={handleRemoveFilter}
+          onClearAll={handleClearAllFilters}
         />
         <View className="flex-1 justify-center items-center pb-24">
           <ActivityIndicator size="large" color="#6366f1" />
@@ -170,6 +247,13 @@ export default function Index() {
           mode={editingPerfume ? "edit" : "create"}
           editingPerfume={editingPerfume || undefined}
         />
+        <FilterModal
+          visible={isFilterModalVisible}
+          onClose={handleCloseFilterModal}
+          onApplyFilters={handleApplyFilters}
+          brands={brands}
+          currentFilters={filters}
+        />
       </SafeAreaView>
     );
   }
@@ -182,6 +266,14 @@ export default function Index() {
           setSearchQuery={setSearchQuery}
           searchResultsCount={perfumes.length}
           isSearching={isSearchingNow}
+          onPressFilters={handleOpenFilters}
+          hasActiveFilters={!!hasFilters}
+        />
+        <FilterChips
+          filters={filters}
+          brands={brands}
+          onRemoveFilter={handleRemoveFilter}
+          onClearAll={handleClearAllFilters}
         />
         <FlatList
           data={[]}
@@ -219,6 +311,13 @@ export default function Index() {
           primaryColor="#603780"
           mode={editingPerfume ? "edit" : "create"}
           editingPerfume={editingPerfume || undefined}
+        />
+        <FilterModal
+          visible={isFilterModalVisible}
+          onClose={handleCloseFilterModal}
+          onApplyFilters={handleApplyFilters}
+          brands={brands}
+          currentFilters={filters}
         />
       </SafeAreaView>
     );
@@ -273,6 +372,13 @@ export default function Index() {
           primaryColor="#603780"
           mode={editingPerfume ? "edit" : "create"}
           editingPerfume={editingPerfume || undefined}
+        />
+        <FilterModal
+          visible={isFilterModalVisible}
+          onClose={handleCloseFilterModal}
+          onApplyFilters={handleApplyFilters}
+          brands={brands}
+          currentFilters={filters}
         />
       </SafeAreaView>
     );
