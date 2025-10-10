@@ -1,8 +1,8 @@
 import Logo from "@/assets/images/logo-transparent.png";
 import { Image } from "expo-image";
 import React, { Dispatch, FC, SetStateAction, useState } from "react";
-import { Pressable, Text, View } from "react-native";
-import { FAB, Searchbar } from "react-native-paper";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import { Searchbar } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 
 interface HeaderProps {
@@ -56,14 +56,17 @@ const Header: FC<HeaderProps> = ({
             color={hasActiveFilters ? "#7C3AED" : "#FFFFFF"}
           />
         </Pressable>
-        <FAB
-          icon="file-document"
-          size="medium"
-          mode="elevated"
+        <Pressable
           onPress={handlePressDocument}
-          loading={isDocumentButtonLoading}
-          style={{ borderRadius: 30 }}
-        />
+          className="w-12 h-12 rounded-full items-center justify-center bg-white/20"
+          disabled={isDocumentButtonLoading}
+        >
+          {isDocumentButtonLoading ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <Ionicons name="document-text" size={20} color="#FFFFFF" />
+          )}
+        </Pressable>
       </View>
       
       {/* Search results indicator */}
