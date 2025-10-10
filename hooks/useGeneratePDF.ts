@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-const RNHTMLtoPDF = require("react-native-html-to-pdf");
+import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { PerfumeFromAPI, BrandFromAPI } from "@/types/perfume";
 
@@ -358,18 +358,13 @@ const generateHTML = (perfumes: PerfumeFromAPI[], brands: BrandFromAPI[]): strin
 const generatePDF = async ({ perfumes, brands }: GeneratePDFRequest) => {
   const html = generateHTML(perfumes, brands);
   
-  const options = {
+  // Generar el PDF usando expo-print
+  const { uri } = await Print.printToFileAsync({
     html,
-    fileName: `inventario-perfumes-${new Date().toISOString().split('T')[0]}`,
-    directory: 'Documents',
-    width: 595, // A4 width in points
-    height: 842, // A4 height in points
-    padding: 24,
-    bgColor: '#FFFFFF',
-  };
+    base64: false,
+  });
 
-  const pdf = await RNHTMLtoPDF.convert(options);
-  return pdf;
+  return { filePath: uri };
 };
 
 export const useGeneratePDF = () => {
