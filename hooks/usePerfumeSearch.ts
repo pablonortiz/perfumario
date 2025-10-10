@@ -1,9 +1,9 @@
-import { PerfumeWithBrandId } from "@/types/perfume";
+import { PerfumeFromAPI } from "@/types/perfume";
 import { useQuery } from "@tanstack/react-query";
 
 const API_BASE_URL = "https://perfumario-server.vercel.app";
 
-const searchPerfumes = async (query: string): Promise<PerfumeWithBrandId[]> => {
+const searchPerfumes = async (query: string): Promise<PerfumeFromAPI[]> => {
   if (!query.trim()) {
     return [];
   }
