@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useRef } from "react";
+import React, { useRef, memo, useCallback } from "react";
 import { Animated, Pressable, View } from "react-native";
 import {
   PanGestureHandler,
@@ -16,7 +16,7 @@ type SwipeableCardProps = {
   swipeThreshold?: number; // ancho de revelado
 };
 
-export const SwipeableCard: React.FC<SwipeableCardProps> = ({
+export const SwipeableCard: React.FC<SwipeableCardProps> = memo(({
   children,
   onEdit,
   onDelete,
@@ -36,7 +36,7 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
     PanGestureHandlerGestureEvent["nativeEvent"]
   >([{ nativeEvent: { translationX: dragX } }], { useNativeDriver: true });
 
-  const snapTo = (toValue: number) => {
+  const snapTo = useCallback((toValue: number) => {
     lastSnap.current = toValue;
     Animated.spring(offsetX, {
       toValue,
@@ -46,9 +46,9 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
       // se resetea el drag del gesto
       dragX.setValue(0);
     });
-  };
+  }, [offsetX, dragX]);
 
-  const close = () => snapTo(0);
+  const close = useCallback(() => snapTo(0), [snapTo]);
 
   const onHandlerStateChange = ({
     nativeEvent,
@@ -71,14 +71,15 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
     }
   };
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     close();
     onEdit();
-  };
-  const handleDelete = () => {
+  }, [close, onEdit]);
+
+  const handleDelete = useCallback(() => {
     close();
     onDelete();
-  };
+  }, [close, onDelete]);
 
   return (
     <View
@@ -184,6 +185,8 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
       </PanGestureHandler>
     </View>
   );
-};
+});
+
+SwipeableCard.displayName = 'SwipeableCard';
 
 export default SwipeableCard;

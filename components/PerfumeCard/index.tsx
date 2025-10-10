@@ -1,9 +1,17 @@
 import { useBrandName } from "@/hooks/useBrandName";
+import { useToast } from "@/hooks/useToast";
 import { useUpdateStock } from "@/hooks/useUpdateStock";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
-import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import React, { useEffect, useRef, useState, memo, useMemo, useCallback } from "react";
+import {
+  ActivityIndicator,
+  Animated,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import { SwipeableCard } from "../SwipeableCard";
+import { Toast } from "../Toast";
 import { getGenderProps } from "./utils/getGenderProps";
 
 type Props = {
@@ -22,7 +30,7 @@ type Props = {
   onDelete: (perfumeId: string) => void;
 };
 
-const ProductCard: React.FC<Props> = ({
+const ProductCard: React.FC<Props> = memo(({
   id,
   gender,
   name,
@@ -31,8 +39,8 @@ const ProductCard: React.FC<Props> = ({
   onEdit,
   onDelete,
 }) => {
-  // Lógica de stock con tres estados
-  const getStockStatus = (stock: number) => {
+  // Lógica de stock con tres estados - memoizada
+  const stockStatus = useMemo(() => {
     if (stock === 0) {
       return {
         text: "Sin stock",
@@ -52,11 +60,10 @@ const ProductCard: React.FC<Props> = ({
         textColor: "#FFFFFF",
       };
     }
-  };
-
-  const stockStatus = getStockStatus(stock);
-  const { genderBackgroundColor, genderIconColor, genderIconName } =
-    getGenderProps(gender);
+  }, [stock]);
+  // Props de género memoizadas
+  const genderProps = useMemo(() => getGenderProps(gender), [gender]);
+  const { genderBackgroundColor, genderIconColor, genderIconName } = genderProps;
 
   // Usar useBrandName para resolver el nombre de la marca
   const brandName = useBrandName(brandId);
@@ -68,41 +75,98 @@ const ProductCard: React.FC<Props> = ({
   // Hook para actualizar stock
   const updateStockMutation = useUpdateStock();
 
-  const handleEdit = () => {
-    onEdit({ id, name, gender, brandId, stock });
-  };
+  // Hook para toast notifications
+  const { toast, showSuccess, showError, hideToast } = useToast();
 
-  const handleDelete = () => {
-    onDelete(id);
-  };
+  // Animaciones para el chip de estado
+  const chipScale = useRef(new Animated.Value(1)).current;
+  const chipOpacity = useRef(new Animated.Value(1)).current;
+  const [previousStock, setPreviousStock] = useState(stock);
 
-  // Funciones del contador
-  const handleIncrement = () => {
-    setCounter(counter + 1);
-    setShowConfirmButtons(true);
-  };
+  // Efecto para animar el chip cuando cambia el stock
+  useEffect(() => {
+    if (stock !== previousStock) {
+      // Animación de transición
+      Animated.sequence([
+        Animated.parallel([
+          Animated.timing(chipScale, {
+            toValue: 1.1,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+          Animated.timing(chipOpacity, {
+            toValue: 0.7,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.parallel([
+          Animated.timing(chipScale, {
+            toValue: 1,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+          Animated.timing(chipOpacity, {
+            toValue: 1,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+        ]),
+      ]).start();
 
-  const handleDecrement = () => {
-    // Permitir decrementar hasta -stock (reducir todo el stock disponible)
-    if (counter > -stock) {
-      setCounter(counter - 1);
-      setShowConfirmButtons(true);
+      setPreviousStock(stock);
     }
-  };
+  }, [stock, previousStock, chipScale, chipOpacity]);
 
-  const handleConfirm = () => {
-    updateStockMutation.mutate({
-      perfumeId: id,
-      stockChange: counter,
+  const handleEdit = useCallback(() => {
+    onEdit({ id, name, gender, brandId, stock });
+  }, [id, name, gender, brandId, stock, onEdit]);
+
+  const handleDelete = useCallback(() => {
+    onDelete(id);
+  }, [id, onDelete]);
+
+  // Funciones del contador - memoizadas
+  const handleIncrement = useCallback(() => {
+    setCounter(prev => prev + 1);
+    setShowConfirmButtons(true);
+  }, []);
+
+  const handleDecrement = useCallback(() => {
+    // Permitir decrementar hasta -stock (reducir todo el stock disponible)
+    setCounter(prev => {
+      if (prev > -stock) {
+        setShowConfirmButtons(true);
+        return prev - 1;
+      }
+      return prev;
     });
-    setCounter(0);
-    setShowConfirmButtons(false);
-  };
+  }, [stock]);
 
-  const handleReset = () => {
+  const handleConfirm = useCallback(() => {
+    updateStockMutation.mutate(
+      {
+        perfumeId: id,
+        stockChange: counter,
+      },
+      {
+        onSuccess: () => {
+          const changeText = counter > 0 ? `+${counter}` : `${counter}`;
+          showSuccess(`Stock actualizado: ${changeText} unidades`);
+        },
+        onError: () => {
+          showError("Error al actualizar el stock");
+        },
+      },
+    );
     setCounter(0);
     setShowConfirmButtons(false);
-  };
+  }, [id, counter, updateStockMutation, showSuccess, showError]);
+
+  const handleReset = useCallback(() => {
+    setCounter(0);
+    setShowConfirmButtons(false);
+  }, []);
 
   return (
     <SwipeableCard
@@ -147,9 +211,13 @@ const ProductCard: React.FC<Props> = ({
           {/* Left side - Status and stock */}
           <View className="flex-row items-center">
             {/* Status pill */}
-            <View
+            <Animated.View
               className="px-3 py-1 rounded-full mr-3"
-              style={{ backgroundColor: stockStatus.backgroundColor }}
+              style={{
+                backgroundColor: stockStatus.backgroundColor,
+                transform: [{ scale: chipScale }],
+                opacity: chipOpacity,
+              }}
             >
               <Text
                 className="text-xs font-semibold"
@@ -157,7 +225,7 @@ const ProductCard: React.FC<Props> = ({
               >
                 {stockStatus.text}
               </Text>
-            </View>
+            </Animated.View>
 
             {/* Stock quantity */}
             <Text className="text-sm text-gray-700">{stock} u.</Text>
@@ -252,8 +320,18 @@ const ProductCard: React.FC<Props> = ({
           </View>
         )}
       </View>
+
+      {/* Toast notifications */}
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={hideToast}
+      />
     </SwipeableCard>
   );
-};
+});
+
+ProductCard.displayName = 'ProductCard';
 
 export default ProductCard;
