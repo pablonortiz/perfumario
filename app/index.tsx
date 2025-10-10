@@ -1,18 +1,21 @@
+import { BrandManagementModal } from "@/components/BrandManagementModal";
+import { FilterChips } from "@/components/FilterChips";
+import { FilterModal } from "@/components/FilterModal";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import PerfumeCard from "@/components/PerfumeCard";
-import { FilterChips } from "@/components/FilterChips";
-import { FilterModal } from "@/components/FilterModal";
+import { useAllPerfumes } from "@/hooks/useAllPerfumes";
 import { useBrands } from "@/hooks/useBrands";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import { useDeletePerfume } from "@/hooks/useDeletePerfume";
+import { useGeneratePDF } from "@/hooks/useGeneratePDF";
+import { usePerfumeFilters } from "@/hooks/usePerfumeFilters";
 import { usePerfumes } from "@/hooks/usePerfumes";
 import { usePerfumeSearch } from "@/hooks/usePerfumeSearch";
-import { usePerfumeFilters } from "@/hooks/usePerfumeFilters";
-import { PerfumeFromAPI } from "@/types/perfume";
 import { AddPerfumeModal } from "@/src/components/modals/AddPerfumeModal";
+import { PerfumeFromAPI } from "@/types/perfume";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, useCallback, useMemo } from "react";
+import { useCallback, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
@@ -23,6 +26,8 @@ export default function Index() {
   const [isAddPerfumeModalVisible, setIsAddPerfumeModalVisible] =
     useState(false);
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
+  const [isBrandManagementModalVisible, setIsBrandManagementModalVisible] =
+    useState(false);
   const [editingPerfume, setEditingPerfume] = useState<{
     id: string;
     name: string;
@@ -65,6 +70,14 @@ export default function Index() {
   // Obtener marcas para el modal
   const { data: brands = [] } = useBrands();
 
+  // Obtener todos los perfumes para el PDF
+  const { data: allPerfumesForPDF = [] } = useAllPerfumes() as {
+    data: PerfumeFromAPI[];
+  };
+
+  // Hook para generar PDF
+  const generatePDFMutation = useGeneratePDF();
+
   // Lógica para determinar qué datos mostrar
   const hasSearch = debouncedSearchQuery.trim();
   const hasFilters = filters.gender || filters.brandId;
@@ -76,8 +89,10 @@ export default function Index() {
   if (hasSearch && hasFilters) {
     // Combinar búsqueda y filtros: filtrar los resultados de búsqueda
     perfumes = searchResults.filter((perfume) => {
-      const matchesGender = !filters.gender || perfume.gender === filters.gender;
-      const matchesBrand = !filters.brandId || perfume.brandId === filters.brandId;
+      const matchesGender =
+        !filters.gender || perfume.gender === filters.gender;
+      const matchesBrand =
+        !filters.brandId || perfume.brandId === filters.brandId;
       return matchesGender && matchesBrand;
     });
     isLoading = isSearching;
@@ -129,56 +144,65 @@ export default function Index() {
   };
 
   // Función para manejar la edición de un perfume - memoizada
-  const handleEditPerfume = useCallback((perfume: {
-    id: string;
-    name: string;
-    gender: "male" | "female" | "unisex";
-    brandId: string;
-    stock: number;
-  }) => {
-    setEditingPerfume(perfume);
-    setIsAddPerfumeModalVisible(true);
-  }, []);
+  const handleEditPerfume = useCallback(
+    (perfume: {
+      id: string;
+      name: string;
+      gender: "male" | "female" | "unisex";
+      brandId: string;
+      stock: number;
+    }) => {
+      setEditingPerfume(perfume);
+      setIsAddPerfumeModalVisible(true);
+    },
+    [],
+  );
 
   // Función para manejar la eliminación de un perfume - memoizada
-  const handleDeletePerfume = useCallback((perfumeId: string) => {
-    Alert.alert(
-      "Eliminar perfume",
-      "¿Estás seguro de que quieres eliminar este perfume? Esta acción es irreversible.",
-      [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-        {
-          text: "Eliminar",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deletePerfumeMutation.mutateAsync(perfumeId);
-              Alert.alert("Éxito", "Perfume eliminado correctamente");
-            } catch (error) {
-              Alert.alert(
-                "Error",
-                `No se pudo eliminar el perfume: ${error instanceof Error ? error.message : "Error desconocido"}`,
-              );
-            }
+  const handleDeletePerfume = useCallback(
+    (perfumeId: string) => {
+      Alert.alert(
+        "Eliminar perfume",
+        "¿Estás seguro de que quieres eliminar este perfume? Esta acción es irreversible.",
+        [
+          {
+            text: "Cancelar",
+            style: "cancel",
           },
-        },
-      ],
-    );
-  }, [deletePerfumeMutation]);
+          {
+            text: "Eliminar",
+            style: "destructive",
+            onPress: async () => {
+              try {
+                await deletePerfumeMutation.mutateAsync(perfumeId);
+                Alert.alert("Éxito", "Perfume eliminado correctamente");
+              } catch (error) {
+                Alert.alert(
+                  "Error",
+                  `No se pudo eliminar el perfume: ${error instanceof Error ? error.message : "Error desconocido"}`,
+                );
+              }
+            },
+          },
+        ],
+      );
+    },
+    [deletePerfumeMutation],
+  );
 
   // Funciones para manejar filtros
-  const handleApplyFilters = useCallback((newFilters: {
-    gender?: "male" | "female" | "unisex";
-    brandId?: string;
-  }) => {
-    setFilters(newFilters);
-  }, []);
+  const handleApplyFilters = useCallback(
+    (newFilters: {
+      gender?: "male" | "female" | "unisex";
+      brandId?: string;
+    }) => {
+      setFilters(newFilters);
+    },
+    [],
+  );
 
   const handleRemoveFilter = useCallback((filterType: "gender" | "brandId") => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       [filterType]: undefined,
     }));
@@ -196,33 +220,73 @@ export default function Index() {
     setIsFilterModalVisible(false);
   }, []);
 
+  const handleOpenBrandManagement = useCallback(() => {
+    setIsBrandManagementModalVisible(true);
+  }, []);
+
+  const handleCloseBrandManagement = useCallback(() => {
+    setIsBrandManagementModalVisible(false);
+  }, []);
+
+  const handleGeneratePDF = useCallback(async (): Promise<boolean> => {
+    try {
+      if (allPerfumesForPDF.length === 0) {
+        Alert.alert(
+          "Sin datos",
+          "No hay perfumes disponibles para generar el reporte.",
+          [{ text: "OK" }],
+        );
+        return false;
+      }
+
+      await generatePDFMutation.mutateAsync({
+        perfumes: allPerfumesForPDF,
+        brands: brands,
+      });
+
+      return true;
+    } catch (error) {
+      Alert.alert("Error", "No se pudo generar el PDF. Intenta nuevamente.", [
+        { text: "OK" },
+      ]);
+      return false;
+    }
+  }, [allPerfumesForPDF, brands, generatePDFMutation]);
+
   // RenderItem memoizado para el FlatList
-  const renderPerfumeItem = useCallback(({ item }: { item: any }) => (
-    <PerfumeCard
-      id={item.id || ""}
-      gender={item.gender || "unisex"}
-      name={item.name || ""}
-      brandId={item.brandId || ""}
-      stock={item.stock || 0}
-      onEdit={handleEditPerfume}
-      onDelete={handleDeletePerfume}
-    />
-  ), [handleEditPerfume, handleDeletePerfume]);
+  const renderPerfumeItem = useCallback(
+    ({ item }: { item: any }) => (
+      <PerfumeCard
+        id={item.id || ""}
+        gender={item.gender || "unisex"}
+        name={item.name || ""}
+        brandId={item.brandId || ""}
+        stock={item.stock || 0}
+        onEdit={handleEditPerfume}
+        onDelete={handleDeletePerfume}
+      />
+    ),
+    [handleEditPerfume, handleDeletePerfume],
+  );
 
   // KeyExtractor memoizado
-  const keyExtractor = useCallback((item: any, index: number) => 
-    `${item.id || item.name || index}`, []);
+  const keyExtractor = useCallback(
+    (item: any, index: number) => `${item.id || item.name || index}`,
+    [],
+  );
 
   if (isLoading || isSearchingNow) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <Header 
-          searchQuery={searchQuery} 
+        <Header
+          searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           searchResultsCount={perfumes.length}
           isSearching={isSearchingNow}
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
+          onPressDocument={handleGeneratePDF}
+          onPressBrandManagement={handleOpenBrandManagement}
         />
         {hasFilters && (
           <FilterChips
@@ -263,13 +327,15 @@ export default function Index() {
   if (error) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <Header 
-          searchQuery={searchQuery} 
+        <Header
+          searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           searchResultsCount={perfumes.length}
           isSearching={isSearchingNow}
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
+          onPressDocument={handleGeneratePDF}
+          onPressBrandManagement={handleOpenBrandManagement}
         />
         {hasFilters && (
           <FilterChips
@@ -328,16 +394,24 @@ export default function Index() {
   }
 
   // Mostrar mensaje si hay filtros pero no hay resultados y no hay búsqueda
-  if (hasFilters && !debouncedSearchQuery.trim() && perfumes.length === 0 && !isLoading && !isSearchingNow) {
+  if (
+    hasFilters &&
+    !debouncedSearchQuery.trim() &&
+    perfumes.length === 0 &&
+    !isLoading &&
+    !isSearchingNow
+  ) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <Header 
-          searchQuery={searchQuery} 
+        <Header
+          searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           searchResultsCount={0}
           isSearching={false}
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
+          onPressDocument={handleGeneratePDF}
+          onPressBrandManagement={handleOpenBrandManagement}
         />
         <FilterChips
           filters={filters}
@@ -356,7 +430,7 @@ export default function Index() {
             Intenta cambiar o quitar algunos filtros
           </Text>
           <Text className="text-gray-400 text-center mt-2">
-            O presiona "Limpiar todo" en los filtros
+            O presiona &quot;Limpiar todo&quot; en los filtros
           </Text>
         </View>
         <Footer onFABPress={handleFABPress} />
@@ -365,16 +439,23 @@ export default function Index() {
   }
 
   // Mostrar mensaje si no hay resultados de búsqueda
-  if (debouncedSearchQuery.trim() && perfumes.length === 0 && !isLoading && !isSearchingNow) {
+  if (
+    debouncedSearchQuery.trim() &&
+    perfumes.length === 0 &&
+    !isLoading &&
+    !isSearchingNow
+  ) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <Header 
-          searchQuery={searchQuery} 
+        <Header
+          searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           searchResultsCount={0}
           isSearching={false}
           onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
+          onPressDocument={handleGeneratePDF}
+          onPressBrandManagement={handleOpenBrandManagement}
         />
         {hasFilters && (
           <FilterChips
@@ -403,28 +484,26 @@ export default function Index() {
               </Text>
               {hasSearch && (
                 <Text className="text-gray-400 text-center mt-2">
-                  No hay resultados para "{debouncedSearchQuery}"
+                  No hay resultados para &quot;{debouncedSearchQuery}&quot;
                 </Text>
               )}
               {hasFilters && (
                 <Text className="text-gray-400 text-center mt-2">
-                  {hasSearch 
-                    ? "con los filtros aplicados" 
-                    : "con los filtros seleccionados"
-                  }
+                  {hasSearch
+                    ? "con los filtros aplicados"
+                    : "con los filtros seleccionados"}
                 </Text>
               )}
               <Text className="text-gray-400 text-center mt-2">
-                {hasSearch 
+                {hasSearch
                   ? "Intenta con otros términos de búsqueda o verifica la ortografía"
-                  : hasFilters 
+                  : hasFilters
                     ? "Intenta cambiar o quitar algunos filtros"
-                    : "Desliza hacia abajo para actualizar"
-                }
+                    : "Desliza hacia abajo para actualizar"}
               </Text>
               {hasFilters && (
                 <Text className="text-gray-400 text-center mt-2">
-                  O presiona "Limpiar todo" en los filtros
+                  O presiona &quot;Limpiar todo&quot; en los filtros
                 </Text>
               )}
               <Text className="text-gray-400 text-center mt-4">
@@ -457,13 +536,15 @@ export default function Index() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Header 
-        searchQuery={searchQuery} 
+      <Header
+        searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         searchResultsCount={perfumes.length}
         isSearching={isSearchingNow}
         onPressFilters={handleOpenFilters}
         hasActiveFilters={!!hasFilters}
+        onPressDocument={handleGeneratePDF}
+        onPressBrandManagement={handleOpenBrandManagement}
       />
       {hasFilters && (
         <FilterChips
@@ -509,6 +590,12 @@ export default function Index() {
         onApplyFilters={handleApplyFilters}
         brands={brands}
         currentFilters={filters}
+      />
+      <BrandManagementModal
+        visible={isBrandManagementModalVisible}
+        onClose={handleCloseBrandManagement}
+        brands={brands}
+        perfumes={perfumes}
       />
     </SafeAreaView>
   );
