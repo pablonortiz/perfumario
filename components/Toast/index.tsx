@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useRef, memo, useMemo, useCallback } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { Animated, Pressable, Text, View } from "react-native";
 
 export type ToastType = "success" | "error" | "info";
@@ -41,118 +41,114 @@ const getToastConfig = (type: ToastType) => {
   }
 };
 
-export const Toast: React.FC<ToastProps> = memo(({
-  visible,
-  message,
-  type,
-  duration = 3000,
-  onHide,
-}) => {
-  const translateY = useRef(new Animated.Value(-100)).current;
-  const opacity = useRef(new Animated.Value(0)).current;
+export const Toast: React.FC<ToastProps> = memo(
+  ({ visible, message, type, duration = 3000, onHide }) => {
+    const translateY = useRef(new Animated.Value(-100)).current;
+    const opacity = useRef(new Animated.Value(0)).current;
 
-  const hideToast = useCallback(() => {
-    Animated.parallel([
-      Animated.timing(translateY, {
-        toValue: -100,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(opacity, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      onHide();
-    });
-  }, [translateY, opacity, onHide]);
-
-  useEffect(() => {
-    if (visible) {
-      // Mostrar toast
+    const hideToast = useCallback(() => {
       Animated.parallel([
         Animated.timing(translateY, {
-          toValue: 0,
+          toValue: -100,
           duration: 300,
           useNativeDriver: true,
         }),
         Animated.timing(opacity, {
-          toValue: 1,
+          toValue: 0,
           duration: 300,
           useNativeDriver: true,
         }),
-      ]).start();
+      ]).start(() => {
+        onHide();
+      });
+    }, [translateY, opacity, onHide]);
 
-      // Auto-hide después del duration
-      const timer = setTimeout(() => {
+    useEffect(() => {
+      if (visible) {
+        // Mostrar toast
+        Animated.parallel([
+          Animated.timing(translateY, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacity, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ]).start();
+
+        // Auto-hide después del duration
+        const timer = setTimeout(() => {
+          hideToast();
+        }, duration);
+
+        return () => clearTimeout(timer);
+      } else {
         hideToast();
-      }, duration);
+      }
+    }, [visible, duration, hideToast, translateY, opacity]);
 
-      return () => clearTimeout(timer);
-    } else {
-      hideToast();
-    }
-  }, [visible, duration, hideToast, translateY, opacity]);
+    const config = useMemo(() => getToastConfig(type), [type]);
 
-  const config = useMemo(() => getToastConfig(type), [type]);
+    if (!visible) return null;
 
-  if (!visible) return null;
-
-  return (
-    <Animated.View
-      style={{
-        position: "absolute",
-        top: 50,
-        left: 16,
-        right: 16,
-        zIndex: 1000,
-        transform: [{ translateY }],
-        opacity,
-      }}
-    >
-      <View
+    return (
+      <Animated.View
         style={{
-          backgroundColor: config.backgroundColor,
-          borderRadius: 12,
-          padding: 16,
-          flexDirection: "row",
-          alignItems: "center",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 8,
+          position: "absolute",
+          top: 20,
+          left: 16,
+          right: 16,
+          zIndex: 1000,
+          transform: [{ translateY }],
+          opacity,
         }}
       >
-        <Ionicons
-          name={config.icon}
-          size={24}
-          color={config.iconColor}
-          style={{ marginRight: 12 }}
-        />
-        <Text
+        <View
           style={{
-            color: "#FFFFFF",
-            fontSize: 16,
-            fontWeight: "500",
-            flex: 1,
+            backgroundColor: config.backgroundColor,
+            borderRadius: 12,
+            padding: 16,
+            flexDirection: "row",
+            alignItems: "center",
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 8,
           }}
         >
-          {message}
-        </Text>
-        <Pressable
-          onPress={hideToast}
-          style={{
-            padding: 4,
-            marginLeft: 8,
-          }}
-        >
-          <Ionicons name="close" size={20} color="#FFFFFF" />
-        </Pressable>
-      </View>
-    </Animated.View>
-  );
-});
+          <Ionicons
+            name={config.icon}
+            size={24}
+            color={config.iconColor}
+            style={{ marginRight: 12 }}
+          />
+          <Text
+            style={{
+              color: "#FFFFFF",
+              fontSize: 16,
+              fontWeight: "500",
+              flex: 1,
+            }}
+          >
+            {message}
+          </Text>
+          <Pressable
+            onPress={hideToast}
+            style={{
+              padding: 4,
+              marginLeft: 8,
+            }}
+          >
+            <Ionicons name="close" size={20} color="#FFFFFF" />
+          </Pressable>
+        </View>
+      </Animated.View>
+    );
+  },
+);
 
-Toast.displayName = 'Toast';
+Toast.displayName = "Toast";
