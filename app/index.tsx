@@ -224,7 +224,10 @@ export default function Index() {
           setSearchQuery={setSearchQuery}
           searchResultsCount={perfumes.length}
           isSearching={isSearchingNow}
-          onPressFilters={handleOpenFilters}
+          onPressFilters={() => {
+            console.log("Passing handleOpenFilters to Header");
+            handleOpenFilters();
+          }}
           hasActiveFilters={!!hasFilters}
         />
         <FilterChips
@@ -269,7 +272,10 @@ export default function Index() {
           setSearchQuery={setSearchQuery}
           searchResultsCount={perfumes.length}
           isSearching={isSearchingNow}
-          onPressFilters={handleOpenFilters}
+          onPressFilters={() => {
+            console.log("Passing handleOpenFilters to Header");
+            handleOpenFilters();
+          }}
           hasActiveFilters={!!hasFilters}
         />
         <FilterChips
