@@ -2,12 +2,13 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import PerfumeCard from "@/components/PerfumeCard";
 import { useBrands } from "@/hooks/useBrands";
+import { useDeletePerfume } from "@/hooks/useDeletePerfume";
 import { usePerfumes } from "@/hooks/usePerfumes";
 import { usePerfumeSearch } from "@/hooks/usePerfumeSearch";
 import { AddPerfumeModal } from "@/src/components/modals/AddPerfumeModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ActivityIndicator, FlatList, Text, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
 
@@ -16,7 +17,15 @@ export default function Index() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isAddPerfumeModalVisible, setIsAddPerfumeModalVisible] =
     useState(false);
+  const [editingPerfume, setEditingPerfume] = useState<{
+    id: string;
+    name: string;
+    gender: "male" | "female" | "unisex";
+    brandId: string;
+    stock: number;
+  } | null>(null);
   const queryClient = useQueryClient();
+  const deletePerfumeMutation = useDeletePerfume();
 
   // Usar búsqueda si hay query, sino mostrar todos los perfumes
   const {
@@ -67,6 +76,48 @@ export default function Index() {
   // Función para cerrar el modal
   const handleCloseModal = () => {
     setIsAddPerfumeModalVisible(false);
+    setEditingPerfume(null);
+  };
+
+  // Función para manejar la edición de un perfume
+  const handleEditPerfume = (perfume: {
+    id: string;
+    name: string;
+    gender: "male" | "female" | "unisex";
+    brandId: string;
+    stock: number;
+  }) => {
+    setEditingPerfume(perfume);
+    setIsAddPerfumeModalVisible(true);
+  };
+
+  // Función para manejar la eliminación de un perfume
+  const handleDeletePerfume = (perfumeId: string) => {
+    Alert.alert(
+      "Eliminar perfume",
+      "¿Estás seguro de que quieres eliminar este perfume? Esta acción es irreversible.",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deletePerfumeMutation.mutateAsync(perfumeId);
+              Alert.alert("Éxito", "Perfume eliminado correctamente");
+            } catch (error) {
+              Alert.alert(
+                "Error",
+                `No se pudo eliminar el perfume: ${error instanceof Error ? error.message : "Error desconocido"}`,
+              );
+            }
+          },
+        },
+      ],
+    );
   };
 
   if (isLoading) {
@@ -85,6 +136,8 @@ export default function Index() {
           onClose={handleCloseModal}
           brands={brands}
           primaryColor="#603780"
+          mode={editingPerfume ? "edit" : "create"}
+          editingPerfume={editingPerfume || undefined}
         />
       </SafeAreaView>
     );
@@ -128,6 +181,8 @@ export default function Index() {
           onClose={handleCloseModal}
           brands={brands}
           primaryColor="#603780"
+          mode={editingPerfume ? "edit" : "create"}
+          editingPerfume={editingPerfume || undefined}
         />
       </SafeAreaView>
     );
@@ -172,6 +227,8 @@ export default function Index() {
           onClose={handleCloseModal}
           brands={brands}
           primaryColor="#603780"
+          mode={editingPerfume ? "edit" : "create"}
+          editingPerfume={editingPerfume || undefined}
         />
       </SafeAreaView>
     );
@@ -184,10 +241,13 @@ export default function Index() {
         data={perfumes}
         renderItem={({ item }) => (
           <PerfumeCard
+            id={item.id || ""}
             gender={item.gender || "unisex"}
             name={item.name || ""}
             brandId={item.brandId || ""}
             stock={item.stock || 0}
+            onEdit={handleEditPerfume}
+            onDelete={handleDeletePerfume}
           />
         )}
         keyExtractor={(item, index) => `${item.name}-${index}`}
@@ -204,6 +264,8 @@ export default function Index() {
         onClose={handleCloseModal}
         brands={brands}
         primaryColor="#603780"
+        mode={editingPerfume ? "edit" : "create"}
+        editingPerfume={editingPerfume || undefined}
       />
     </SafeAreaView>
   );
