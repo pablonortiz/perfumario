@@ -39,9 +39,10 @@ const Header: FC<HeaderProps> = ({
 
   return (
     <View>
-      <View className="flex-row items-center justify-between p-4 bg-violet-500 gap-3">
+      {/* Fila superior: Logo + Barra de búsqueda */}
+      <View className="flex-row items-center p-4 bg-violet-500 gap-3">
         <Image source={Logo} style={{ width: 50, height: 50 }} />
-        <View className="flex-1 mx-3">
+        <View className="flex-1">
           <Searchbar
             style={{
               flex: 1,
@@ -62,37 +63,39 @@ const Header: FC<HeaderProps> = ({
             onChangeText={setSearchQuery}
           />
         </View>
-        <View className="flex-row items-center gap-2">
-          <AnimatedButton
-            onPress={onPressFilters}
-            className={`w-12 h-12 rounded-full items-center justify-center ${
-              hasActiveFilters ? "bg-white" : "bg-white/20"
-            }`}
-          >
-            <Ionicons
-              name="filter"
-              size={20}
-              color={hasActiveFilters ? "#7C3AED" : "#FFFFFF"}
-            />
-          </AnimatedButton>
-          <AnimatedButton
-            onPress={onPressBrandManagement}
-            className="w-12 h-12 rounded-full items-center justify-center bg-white/20"
-          >
-            <Ionicons name="settings" size={20} color="#FFFFFF" />
-          </AnimatedButton>
-          <AnimatedButton
-            onPress={handlePressDocument}
-            className="w-12 h-12 rounded-full items-center justify-center bg-white/20"
-            disabled={isDocumentButtonLoading}
-          >
-            {isDocumentButtonLoading ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <Ionicons name="document-text" size={20} color="#FFFFFF" />
-            )}
-          </AnimatedButton>
-        </View>
+      </View>
+
+      {/* Fila inferior: Botones centrados */}
+      <View className="flex-row justify-center items-center p-3 bg-violet-500 gap-4">
+        <AnimatedButton
+          onPress={onPressFilters}
+          className={`w-12 h-12 rounded-full items-center justify-center ${
+            hasActiveFilters ? "bg-white" : "bg-white/20"
+          }`}
+        >
+          <Ionicons
+            name="filter"
+            size={20}
+            color={hasActiveFilters ? "#7C3AED" : "#FFFFFF"}
+          />
+        </AnimatedButton>
+        <AnimatedButton
+          onPress={onPressBrandManagement}
+          className="w-12 h-12 rounded-full items-center justify-center bg-white/20"
+        >
+          <Ionicons name="settings" size={20} color="#FFFFFF" />
+        </AnimatedButton>
+        <AnimatedButton
+          onPress={handlePressDocument}
+          className="w-12 h-12 rounded-full items-center justify-center bg-white/20"
+          disabled={isDocumentButtonLoading}
+        >
+          {isDocumentButtonLoading ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <Ionicons name="document-text" size={20} color="#FFFFFF" />
+          )}
+        </AnimatedButton>
       </View>
 
       {/* Search results indicator */}
