@@ -189,11 +189,8 @@ export default function Index() {
   }, []);
 
   const handleOpenFilters = useCallback(() => {
-    console.log("Opening filter modal...");
     setIsFilterModalVisible(true);
   }, []);
-
-  console.log("handleOpenFilters function:", handleOpenFilters);
 
   const handleCloseFilterModal = useCallback(() => {
     setIsFilterModalVisible(false);
@@ -224,10 +221,7 @@ export default function Index() {
           setSearchQuery={setSearchQuery}
           searchResultsCount={perfumes.length}
           isSearching={isSearchingNow}
-          onPressFilters={() => {
-            console.log("Passing handleOpenFilters to Header");
-            handleOpenFilters();
-          }}
+          onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
         />
         <FilterChips
@@ -272,10 +266,7 @@ export default function Index() {
           setSearchQuery={setSearchQuery}
           searchResultsCount={perfumes.length}
           isSearching={isSearchingNow}
-          onPressFilters={() => {
-            console.log("Passing handleOpenFilters to Header");
-            handleOpenFilters();
-          }}
+          onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
         />
         <FilterChips
@@ -341,10 +332,7 @@ export default function Index() {
           setSearchQuery={setSearchQuery}
           searchResultsCount={0}
           isSearching={false}
-          onPressFilters={() => {
-            console.log("Passing handleOpenFilters to Header");
-            handleOpenFilters();
-          }}
+          onPressFilters={handleOpenFilters}
           hasActiveFilters={!!hasFilters}
         />
         <FlatList
@@ -405,10 +393,7 @@ export default function Index() {
         setSearchQuery={setSearchQuery}
         searchResultsCount={perfumes.length}
         isSearching={isSearchingNow}
-        onPressFilters={() => {
-          console.log("Passing handleOpenFilters to Header");
-          handleOpenFilters();
-        }}
+        onPressFilters={handleOpenFilters}
         hasActiveFilters={!!hasFilters}
       />
       <FlatList
@@ -440,6 +425,13 @@ export default function Index() {
         primaryColor="#603780"
         mode={editingPerfume ? "edit" : "create"}
         editingPerfume={editingPerfume || undefined}
+      />
+      <FilterModal
+        visible={isFilterModalVisible}
+        onClose={handleCloseFilterModal}
+        onApplyFilters={handleApplyFilters}
+        brands={brands}
+        currentFilters={filters}
       />
     </SafeAreaView>
   );

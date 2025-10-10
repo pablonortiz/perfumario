@@ -30,7 +30,6 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   brands,
   currentFilters,
 }) => {
-  console.log("FilterModal rendered, visible:", visible);
   const [selectedGender, setSelectedGender] = useState<
     "male" | "female" | "unisex" | undefined
   >(currentFilters.gender);

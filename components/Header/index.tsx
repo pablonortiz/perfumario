@@ -48,16 +48,7 @@ const Header: FC<HeaderProps> = ({
         </View>
         <View className="flex-row items-center gap-3">
         <Pressable
-          onPress={() => {
-            console.log("Filter button pressed, calling onPressFilters");
-            console.log("onPressFilters type:", typeof onPressFilters);
-            console.log("onPressFilters value:", onPressFilters);
-            if (onPressFilters) {
-              onPressFilters();
-            } else {
-              console.log("onPressFilters is still undefined!");
-            }
-          }}
+          onPress={onPressFilters}
           className={`w-12 h-12 rounded-full items-center justify-center ${
             hasActiveFilters ? "bg-white" : "bg-white/20"
           }`}
