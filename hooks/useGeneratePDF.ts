@@ -24,7 +24,6 @@ const generateHTML = (
   // Función para obtener el estado del stock
   const getStockStatus = (stock: number) => {
     if (stock === 0) return { text: "Sin stock", class: "status-out" };
-    if (stock <= 3) return { text: "Poco stock", class: "status-low" };
     return { text: "Disponible", class: "status-available" };
   };
 
@@ -241,11 +240,6 @@ const generateHTML = (
           color: #166534;
         }
         
-        .status-low {
-          background: #fef3c7;
-          color: #92400e;
-        }
-        
         .status-out {
           background: #fee2e2;
           color: #991b1b;
@@ -350,7 +344,7 @@ const generateHTML = (
               <div class="summary-label">Marcas</div>
             </div>
             <div class="summary-item">
-              <div class="summary-number">${perfumes.filter((p) => p.stock > 3).length}</div>
+              <div class="summary-number">${perfumes.filter((p) => p.stock > 0).length}</div>
               <div class="summary-label">Disponibles</div>
             </div>
           </div>
