@@ -1,19 +1,25 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { BrandFromAPI, PerfumeFromAPI } from "@/types/perfume";
+import { useMutation } from "@tanstack/react-query";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
-import { PerfumeFromAPI, BrandFromAPI } from "@/types/perfume";
 
 interface GeneratePDFRequest {
   perfumes: PerfumeFromAPI[];
   brands: BrandFromAPI[];
 }
 
-const generateHTML = (perfumes: PerfumeFromAPI[], brands: BrandFromAPI[]): string => {
+const generateHTML = (
+  perfumes: PerfumeFromAPI[],
+  brands: BrandFromAPI[],
+): string => {
   // Crear un mapa de marcas para acceso rápido
-  const brandMap = brands.reduce((acc, brand) => {
-    acc[brand.id] = brand.name;
-    return acc;
-  }, {} as Record<string, string>);
+  const brandMap = brands.reduce(
+    (acc, brand) => {
+      acc[brand.id] = brand.name;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
 
   // Función para obtener el estado del stock
   const getStockStatus = (stock: number) => {
@@ -25,25 +31,32 @@ const generateHTML = (perfumes: PerfumeFromAPI[], brands: BrandFromAPI[]): strin
   // Función para obtener el nombre del género
   const getGenderName = (gender: string) => {
     switch (gender) {
-      case "male": return "Hombre";
-      case "female": return "Mujer";
-      case "unisex": return "Unisex";
-      default: return gender;
+      case "male":
+        return "Hombre";
+      case "female":
+        return "Mujer";
+      case "unisex":
+        return "Unisex";
+      default:
+        return gender;
     }
   };
 
   // Agrupar perfumes por género
-  const perfumesByGender = perfumes.reduce((acc, perfume) => {
-    const gender = getGenderName(perfume.gender);
-    if (!acc[gender]) {
-      acc[gender] = [];
-    }
-    acc[gender].push(perfume);
-    return acc;
-  }, {} as Record<string, PerfumeFromAPI[]>);
+  const perfumesByGender = perfumes.reduce(
+    (acc, perfume) => {
+      const gender = getGenderName(perfume.gender);
+      if (!acc[gender]) {
+        acc[gender] = [];
+      }
+      acc[gender].push(perfume);
+      return acc;
+    },
+    {} as Record<string, PerfumeFromAPI[]>,
+  );
 
   // Ordenar perfumes dentro de cada género por nombre
-  Object.keys(perfumesByGender).forEach(gender => {
+  Object.keys(perfumesByGender).forEach((gender) => {
     perfumesByGender[gender].sort((a, b) => a.name.localeCompare(b.name));
   });
 
@@ -212,11 +225,6 @@ const generateHTML = (perfumes: PerfumeFromAPI[], brands: BrandFromAPI[]): strin
           font-size: 0.95rem;
         }
         
-        .stock-number {
-          font-weight: 600;
-          color: #1e293b;
-          font-size: 1rem;
-        }
         
         .status-chip {
           display: inline-block;
@@ -275,6 +283,49 @@ const generateHTML = (perfumes: PerfumeFromAPI[], brands: BrandFromAPI[]): strin
             background: transparent;
           }
         }
+        
+        /* Estilos específicos para PDF */
+        @page {
+          size: A4;
+          margin: 1cm;
+        }
+        
+        .gender-section {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+        
+        .perfumes-table {
+          page-break-inside: auto;
+          break-inside: auto;
+        }
+        
+        .perfumes-table thead {
+          display: table-header-group;
+        }
+        
+        .perfumes-table tbody tr {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+        
+        /* Asegurar que las secciones no se corten */
+        .gender-section:not(:last-child) {
+          page-break-after: auto;
+          break-after: auto;
+        }
+        
+        /* Si una tabla es muy larga, permitir que se divida */
+        .perfumes-table tbody {
+          page-break-inside: auto;
+          break-inside: auto;
+        }
+        
+        /* Mantener el header de la tabla en cada página */
+        .perfumes-table thead tr {
+          page-break-after: avoid;
+          break-after: avoid;
+        }
       </style>
     </head>
     <body>
@@ -299,7 +350,7 @@ const generateHTML = (perfumes: PerfumeFromAPI[], brands: BrandFromAPI[]): strin
               <div class="summary-label">Marcas</div>
             </div>
             <div class="summary-item">
-              <div class="summary-number">${perfumes.filter(p => p.stock > 3).length}</div>
+              <div class="summary-number">${perfumes.filter((p) => p.stock > 3).length}</div>
               <div class="summary-label">Disponibles</div>
             </div>
           </div>
@@ -308,7 +359,8 @@ const generateHTML = (perfumes: PerfumeFromAPI[], brands: BrandFromAPI[]): strin
         <div class="content">
           ${Object.entries(perfumesByGender)
             .sort(([a], [b]) => a.localeCompare(b))
-            .map(([gender, genderPerfumes]) => `
+            .map(
+              ([gender, genderPerfumes]) => `
               <div class="gender-section">
                 <h2 class="gender-title">
                   <span class="gender-icon">${gender.charAt(0)}</span>
@@ -319,18 +371,17 @@ const generateHTML = (perfumes: PerfumeFromAPI[], brands: BrandFromAPI[]): strin
                     <tr>
                       <th>Perfume</th>
                       <th>Marca</th>
-                      <th>Stock</th>
                       <th>Estado</th>
                     </tr>
                   </thead>
                   <tbody>
-                    ${genderPerfumes.map(perfume => {
-                      const stockStatus = getStockStatus(perfume.stock);
-                      return `
+                    ${genderPerfumes
+                      .map((perfume) => {
+                        const stockStatus = getStockStatus(perfume.stock);
+                        return `
                         <tr>
                           <td class="perfume-name">${perfume.name}</td>
                           <td class="brand-name">${brandMap[perfume.brandId] || "Marca no encontrada"}</td>
-                          <td class="stock-number">${perfume.stock} u.</td>
                           <td>
                             <span class="status-chip ${stockStatus.class}">
                               ${stockStatus.text}
@@ -338,11 +389,14 @@ const generateHTML = (perfumes: PerfumeFromAPI[], brands: BrandFromAPI[]): strin
                           </td>
                         </tr>
                       `;
-                    }).join("")}
+                      })
+                      .join("")}
                   </tbody>
                 </table>
               </div>
-            `).join("")}
+            `,
+            )
+            .join("")}
         </div>
         
         <div class="footer">
@@ -357,19 +411,19 @@ const generateHTML = (perfumes: PerfumeFromAPI[], brands: BrandFromAPI[]): strin
 
 const generatePDF = async ({ perfumes, brands }: GeneratePDFRequest) => {
   const html = generateHTML(perfumes, brands);
-  
+
   // Generar el PDF usando expo-print
   const { uri } = await Print.printToFileAsync({
     html,
     base64: false,
+    width: 595, // A4 width in points
+    height: 842, // A4 height in points
   });
 
   return { filePath: uri };
 };
 
 export const useGeneratePDF = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: generatePDF,
     onSuccess: async (pdf) => {
@@ -379,23 +433,23 @@ export const useGeneratePDF = () => {
         if (isAvailable) {
           // Compartir el PDF usando expo-sharing
           await Sharing.shareAsync(pdf.filePath, {
-            mimeType: 'application/pdf',
-            dialogTitle: 'Compartir Inventario de Perfumes',
+            mimeType: "application/pdf",
+            dialogTitle: "Compartir Inventario de Perfumes",
           });
         } else {
           if (__DEV__) {
-            console.log('Sharing is not available on this device');
+            console.log("Sharing is not available on this device");
           }
         }
       } catch (error) {
         if (__DEV__) {
-          console.log('Error sharing PDF:', error);
+          console.log("Error sharing PDF:", error);
         }
         // Si hay error al compartir, al menos el PDF se generó
       }
     },
     onError: (error) => {
-      console.error('Error generating PDF:', error);
+      console.error("Error generating PDF:", error);
     },
   });
 };

@@ -2,8 +2,8 @@ import Logo from "@/assets/images/logo-transparent.png";
 import { AnimatedButton } from "@/components/AnimatedButton";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import React, { Dispatch, FC, SetStateAction, useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { Dispatch, FC, SetStateAction, useState } from "react";
+import { ActivityIndicator, StatusBar, Text, View } from "react-native";
 import { Searchbar } from "react-native-paper";
 
 interface HeaderProps {
@@ -39,6 +39,13 @@ const Header: FC<HeaderProps> = ({
 
   return (
     <View>
+      {/* Status Bar */}
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="#8B5CF6"
+        translucent={false}
+      />
+
       {/* Fila superior: Logo + Barra de búsqueda */}
       <View className="flex-row items-center p-4 bg-violet-500 gap-3">
         <Image source={Logo} style={{ width: 50, height: 50 }} />

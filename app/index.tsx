@@ -287,7 +287,11 @@ export default function Index() {
 
   if (isLoading || isActuallySearching) {
     return (
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView
+        className="flex-1 bg-white"
+        style={{ backgroundColor: "#ffffff" }}
+        edges={["top"]}
+      >
         <Header
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -339,7 +343,11 @@ export default function Index() {
 
   if (_error) {
     return (
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView
+        className="flex-1 bg-white"
+        style={{ backgroundColor: "#ffffff" }}
+        edges={["top"]}
+      >
         <Header
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -420,7 +428,11 @@ export default function Index() {
     shouldShowResults
   ) {
     return (
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView
+        className="flex-1 bg-white"
+        style={{ backgroundColor: "#ffffff" }}
+        edges={["top"]}
+      >
         <Header
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -463,7 +475,11 @@ export default function Index() {
     shouldShowResults
   ) {
     return (
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView
+        className="flex-1 bg-white"
+        style={{ backgroundColor: "#ffffff" }}
+        edges={["top"]}
+      >
         <Header
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -558,7 +574,11 @@ export default function Index() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      className="flex-1 bg-white"
+      style={{ backgroundColor: "#8B5CF6" }}
+      edges={["top"]}
+    >
       <Header
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -584,7 +604,10 @@ export default function Index() {
         showsVerticalScrollIndicator={false}
         refreshing={isRefreshing}
         onRefresh={handleRefresh}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{
+          paddingBottom: 100,
+          backgroundColor: "#ffffff",
+        }}
         removeClippedSubviews={true}
         maxToRenderPerBatch={10}
         updateCellsBatchingPeriod={50}
