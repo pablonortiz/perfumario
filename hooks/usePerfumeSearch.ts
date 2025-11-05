@@ -1,7 +1,6 @@
+import { API_ENDPOINTS, DEFAULT_FETCH_OPTIONS } from "@/config/api";
 import { PerfumeFromAPI } from "@/types/perfume";
 import { useQuery } from "@tanstack/react-query";
-
-const API_BASE_URL = "https://perfumario-server.vercel.app";
 
 const searchPerfumes = async (query: string): Promise<PerfumeFromAPI[]> => {
   if (!query.trim() || query.trim().length < 2) {
@@ -9,12 +8,10 @@ const searchPerfumes = async (query: string): Promise<PerfumeFromAPI[]> => {
   }
 
   const response = await fetch(
-    `${API_BASE_URL}/perfumes/search?q=${encodeURIComponent(query)}`,
+    API_ENDPOINTS.perfumes.search(encodeURIComponent(query)),
     {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      ...DEFAULT_FETCH_OPTIONS,
     },
   );
 

@@ -1,16 +1,13 @@
+import { API_ENDPOINTS, DEFAULT_FETCH_OPTIONS } from "@/config/api";
 import { useBrandsStore } from "@/stores/brandsStore";
 import { BrandFromAPI } from "@/types/perfume";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-const API_BASE_URL = "https://perfumario-server.vercel.app";
-
 const fetchBrands = async (): Promise<BrandFromAPI[]> => {
-  const response = await fetch(`${API_BASE_URL}/brands`, {
+  const response = await fetch(API_ENDPOINTS.brands.list(), {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    ...DEFAULT_FETCH_OPTIONS,
   });
 
   if (!response.ok) {

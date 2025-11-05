@@ -1,7 +1,6 @@
+import { API_ENDPOINTS, DEFAULT_FETCH_OPTIONS } from "@/config/api";
 import { PerfumeFromAPI } from "@/types/perfume";
 import { useQuery } from "@tanstack/react-query";
-
-const API_BASE_URL = "https://perfumario-server.vercel.app";
 
 interface FilterOptions {
   gender?: "male" | "female" | "unisex";
@@ -11,11 +10,9 @@ interface FilterOptions {
 const fetchPerfumesByGender = async (
   gender: "male" | "female" | "unisex"
 ): Promise<PerfumeFromAPI[]> => {
-  const response = await fetch(`${API_BASE_URL}/perfumes/gender/${gender}`, {
+  const response = await fetch(API_ENDPOINTS.perfumes.byGender(gender), {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    ...DEFAULT_FETCH_OPTIONS,
   });
 
   if (!response.ok) {
@@ -26,11 +23,9 @@ const fetchPerfumesByGender = async (
 };
 
 const fetchPerfumesByBrand = async (brandId: string): Promise<PerfumeFromAPI[]> => {
-  const response = await fetch(`${API_BASE_URL}/perfumes/brand/${brandId}`, {
+  const response = await fetch(API_ENDPOINTS.perfumes.byBrand(brandId), {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    ...DEFAULT_FETCH_OPTIONS,
   });
 
   if (!response.ok) {

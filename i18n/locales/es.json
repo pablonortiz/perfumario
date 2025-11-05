@@ -1,0 +1,88 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "ok": "OK",
+    "error": "Error",
+    "success": "Éxito",
+    "loading": "Cargando...",
+    "pullToRefresh": "Desliza hacia abajo para actualizar"
+  },
+  "inventory": {
+    "title": "Inventario de Perfumes",
+    "searchPlaceholder": "Buscar perfumes...",
+    "noResults": "No se encontraron perfumes",
+    "errorLoading": "Error al cargar los perfumes",
+    "retryLater": "Intenta nuevamente más tarde"
+  },
+  "perfume": {
+    "add": "Añadir perfume",
+    "edit": "Editar perfume",
+    "delete": "Eliminar perfume",
+    "deleteConfirmation": "¿Estás seguro de que quieres eliminar este perfume? Esta acción es irreversible.",
+    "deleteSuccess": "Perfume eliminado correctamente",
+    "createSuccess": "El perfume \"{{name}}\" ha sido creado exitosamente.",
+    "updateSuccess": "El perfume \"{{name}}\" ha sido actualizado exitosamente.",
+    "name": "Nombre del perfume",
+    "namePlaceholder": "Nombre del perfume",
+    "stock": "Stock",
+    "stockInitial": "Stock inicial",
+    "gender": "Género",
+    "brand": "Marca"
+  },
+  "brand": {
+    "add": "Añadir '{{name}}'",
+    "creating": "Creando marca...",
+    "createSuccess": "La marca \"{{name}}\" ha sido creada exitosamente.",
+    "deleteError": "No se pudo eliminar la marca",
+    "brandPlaceholder": "Nombre de la marca",
+    "similarBrands": "Marcas similares:",
+    "management": "Gestión de marcas"
+  },
+  "stock": {
+    "available": "Disponible",
+    "lowStock": "Bajo stock",
+    "outOfStock": "Sin stock",
+    "updating": "Actualizando stock...",
+    "updateSuccess": "Stock actualizado: {{change}} unidades",
+    "updateError": "Error al actualizar el stock",
+    "units": "{{count}} u."
+  },
+  "gender": {
+    "male": "Hombre",
+    "female": "Mujer",
+    "unisex": "Unisex"
+  },
+  "filter": {
+    "filters": "Filtros",
+    "applyFilters": "Aplicar filtros",
+    "clearAll": "Limpiar todo",
+    "noResultsWithFilters": "No se encontraron perfumes con los filtros seleccionados",
+    "changeFilters": "Intenta cambiar o quitar algunos filtros",
+    "clearFiltersPrompt": "O presiona \"Limpiar todo\" en los filtros"
+  },
+  "search": {
+    "searching": "Buscando...",
+    "noResults": "No hay resultados para \"{{query}}\"",
+    "withFilters": "con los filtros aplicados",
+    "tryOtherTerms": "Intenta con otros términos de búsqueda o verifica la ortografía"
+  },
+  "pdf": {
+    "generate": "Generar PDF",
+    "generating": "Generando PDF...",
+    "noData": "Sin datos",
+    "noDataMessage": "No hay perfumes disponibles para generar el reporte.",
+    "generateError": "No se pudo generar el PDF. Intenta nuevamente."
+  },
+  "errors": {
+    "deletePerfume": "No se pudo eliminar el perfume: {{message}}",
+    "createBrand": "No se pudo crear la marca: {{message}}",
+    "createPerfume": "No se pudo crear el perfume: {{message}}",
+    "updatePerfume": "No se pudo actualizar el perfume: {{message}}",
+    "unknown": "Error desconocido"
+  }
+}

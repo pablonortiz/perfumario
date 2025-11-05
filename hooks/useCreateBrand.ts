@@ -1,6 +1,5 @@
+import { API_ENDPOINTS, DEFAULT_FETCH_OPTIONS } from "@/config/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
-const API_BASE_URL = "https://perfumario-server.vercel.app";
 
 interface CreateBrandData {
   name: string;
@@ -16,11 +15,9 @@ interface CreateBrandResponse {
 const createBrand = async (
   data: CreateBrandData,
 ): Promise<CreateBrandResponse> => {
-  const response = await fetch(`${API_BASE_URL}/brands`, {
+  const response = await fetch(API_ENDPOINTS.brands.create(), {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    ...DEFAULT_FETCH_OPTIONS,
     body: JSON.stringify(data),
   });
 

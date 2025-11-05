@@ -1,6 +1,5 @@
+import { API_ENDPOINTS, DEFAULT_FETCH_OPTIONS } from "@/config/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
-const API_BASE_URL = "https://perfumario-server.vercel.app";
 
 interface DeletePerfumeResponse {
   message: string;
@@ -9,11 +8,9 @@ interface DeletePerfumeResponse {
 const deletePerfume = async (
   perfumeId: string,
 ): Promise<DeletePerfumeResponse> => {
-  const response = await fetch(`${API_BASE_URL}/perfumes/${perfumeId}`, {
+  const response = await fetch(API_ENDPOINTS.perfumes.delete(perfumeId), {
     method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    ...DEFAULT_FETCH_OPTIONS,
   });
 
   if (!response.ok) {

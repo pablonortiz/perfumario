@@ -1,50 +1,152 @@
-# Welcome to your Expo app 👋
+# 🌸 Perfumario - Inventory Management App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern, feature-rich perfume inventory management application built with React Native and Expo.
 
-## Get started
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![React Native](https://img.shields.io/badge/React%20Native-0.81-61DAFB.svg)
+![Expo](https://img.shields.io/badge/Expo-54-000020.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6.svg)
 
-1. Install dependencies
+## ✨ Features
 
-   ```bash
-   npm install
-   ```
+### Core Features
+- 📦 **Inventory Management** - Add, edit, and delete perfume products
+- 🔍 **Advanced Search** - Real-time debounced search with 500ms delay
+- 🎯 **Smart Filtering** - Filter by gender (Male/Female/Unisex) and brand
+- 📊 **Stock Management** - Track stock levels with visual indicators
+- 🏷️ **Brand Management** - Create and manage perfume brands
+- 📄 **PDF Export** - Generate professional inventory reports
 
-2. Start the app
+### Technical Features
+- 🌐 **Internationalization** - Multi-language support (English/Spanish)
+- 🌙 **Dark Mode** - Automatic and manual theme switching
+- 📱 **Offline Support** - Local data persistence with MMKV
+- ♿ **Accessibility** - Screen reader support and reduce motion preferences
+- 🎨 **Modern UI** - TailwindCSS with NativeWind for styling
+- ⚡ **Performance** - Optimized with React Query caching and memoization
+- 🔄 **Real-time Updates** - Optimistic updates for instant feedback
 
-   ```bash
-   npx expo start
-   ```
+## 🚀 Quick Start
 
-In the output, you'll find options to open the app in a
+### Prerequisites
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Node.js 18+ installed
+- Expo CLI (\`npm install -g expo-cli\`)
+- iOS Simulator (Mac) or Android Studio (for emulators)
+- Expo Go app (for physical device testing)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Installation
 
-## Get a fresh project
+1. Clone the repository:
+\`\`\`bash
+git clone https://github.com/pablonortiz/perfumario.git
+cd perfumario
+\`\`\`
 
-When you're ready, run:
+2. Install dependencies:
+\`\`\`bash
+npm install
+\`\`\`
 
-```bash
-npm run reset-project
-```
+3. Set up environment variables:
+\`\`\`bash
+cp .env.example .env
+\`\`\`
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+4. Start the development server:
+\`\`\`bash
+npm start
+\`\`\`
 
-## Learn more
+5. Run on your preferred platform:
+\`\`\`bash
+npm run ios      # iOS Simulator
+npm run android  # Android Emulator
+npm run web      # Web Browser
+\`\`\`
 
-To learn more about developing your project with Expo, look at the following resources:
+## 📁 Project Structure
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+\`\`\`
+perfumario/
+├── app/                        # Main app screens (file-based routing)
+│   ├── _layout.tsx            # Root layout with providers
+│   └── index.tsx              # Home screen
+├── components/                 # Reusable UI components
+│   ├── AnimatedList/          # List animations
+│   ├── EmptyState/            # Empty state component
+│   ├── MainLayout/            # Main layout wrapper
+│   ├── PerfumeCard/           # Product card
+│   └── ...
+├── config/                     # Configuration files
+│   ├── api.ts                 # API endpoints and configuration
+│   └── storage.ts             # MMKV storage configuration
+├── context/                    # React contexts
+│   └── ThemeContext.tsx       # Theme provider
+├── hooks/                      # Custom React hooks
+│   ├── usePerfumes.ts         # Perfume data fetching
+│   ├── useAccessibility.ts    # Accessibility settings
+│   └── ...
+├── i18n/                       # Internationalization
+│   ├── config.ts              # i18next configuration
+│   └── locales/               # Translation files
+│       ├── en.json            # English
+│       └── es.json            # Spanish
+├── stores/                     # Zustand stores
+│   └── brandsStore.ts         # Brands state management
+├── types/                      # TypeScript type definitions
+│   ├── perfume.ts             # API types
+│   └── shared.ts              # Shared types
+└── docs/                       # Documentation
+    └── ARCHITECTURE.md         # Architecture overview
+\`\`\`
 
-## Join the community
+## 🏗️ Architecture
 
-Join our community of developers creating universal apps.
+See [ARCHITECTURE.md](./docs/ARCHITECTURE.md) for detailed architecture documentation.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 🌐 Internationalization
+
+Switch languages easily:
+
+\`\`\`typescript
+import { useTranslation } from 'react-i18next';
+
+function MyComponent() {
+  const { t, i18n } = useTranslation();
+  
+  return <Text>{t('common.save')}</Text>;
+  
+  // Change language
+  i18n.changeLanguage('en');
+}
+\`\`\`
+
+## 📡 API Configuration
+
+**Base URL:** \`https://perfumario-server.vercel.app\`
+
+See \`config/api.ts\` for all available endpoints.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (\`git checkout -b feature/amazing-feature\`)
+3. Commit your changes (\`git commit -m 'Add amazing feature'\`)
+4. Push to the branch (\`git push origin feature/amazing-feature\`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is private and proprietary.
+
+## 👨‍💻 Author
+
+**Pablo Nortiz**
+- GitHub: [@pablonortiz](https://github.com/pablonortiz)
+
+---
+
+Built with ❤️ using React Native and Expo

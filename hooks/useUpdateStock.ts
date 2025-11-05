@@ -1,6 +1,5 @@
+import { API_ENDPOINTS, DEFAULT_FETCH_OPTIONS } from "@/config/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
-const API_BASE_URL = "https://perfumario-server.vercel.app";
 
 interface UpdateStockRequest {
   perfumeId: string;
@@ -22,7 +21,7 @@ const updateStock = async ({
   stockChange,
 }: UpdateStockRequest): Promise<UpdateStockResponse> => {
   // Primero obtenemos el perfume actual para calcular el nuevo stock
-  const getResponse = await fetch(`${API_BASE_URL}/perfumes/${perfumeId}`);
+  const getResponse = await fetch(API_ENDPOINTS.perfumes.byId(perfumeId));
 
   if (!getResponse.ok) {
     throw new Error("Error al obtener el perfume actual");
@@ -32,11 +31,9 @@ const updateStock = async ({
   const newStock = currentPerfume.stock + stockChange;
 
   // Actualizamos el perfume con el nuevo stock
-  const response = await fetch(`${API_BASE_URL}/perfumes/${perfumeId}`, {
+  const response = await fetch(API_ENDPOINTS.perfumes.update(perfumeId), {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    ...DEFAULT_FETCH_OPTIONS,
     body: JSON.stringify({ stock: newStock }),
   });
 
