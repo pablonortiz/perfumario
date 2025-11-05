@@ -1,0 +1,27 @@
+appId: com.pnortiz.perfumario
+---
+# Test: Delete Perfume
+- launchApp
+- waitForAnimationToEnd
+
+# Wait for perfumes to load
+- extendedWaitUntil:
+    visible: "Disponible|Available|Sin stock|Out of stock"
+    timeout: 10000
+
+# Swipe to reveal delete button
+- swipe:
+    direction: LEFT
+    duration: 500
+
+# Tap delete button
+- tapOn:
+    accessibilityLabel: "Eliminar|Delete"
+- waitForAnimationToEnd
+
+# Confirm deletion in alert
+- tapOn: "Eliminar|Delete"
+- waitForAnimationToEnd
+
+# Verify success message
+- assertVisible: "eliminado|deleted|Éxito|Success"

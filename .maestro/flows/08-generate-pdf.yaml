@@ -1,0 +1,13 @@
+appId: com.pnortiz.perfumario
+---
+# Test: Generate PDF Report
+- launchApp
+- waitForAnimationToEnd
+
+# Tap on PDF export button
+- tapOn:
+    accessibilityLabel: "Generar PDF|Generate PDF"
+- waitForAnimationToEnd
+
+# Verify PDF generation or sharing dialog
+- assertVisible: "PDF|Compartir|Share"

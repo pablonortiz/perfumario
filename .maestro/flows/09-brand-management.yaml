@@ -1,0 +1,28 @@
+appId: com.pnortiz.perfumario
+---
+# Test: Brand Management
+- launchApp
+- waitForAnimationToEnd
+
+# Open brand management
+- tapOn:
+    accessibilityLabel: "Gestión de marcas|Brand management"
+- waitForAnimationToEnd
+
+# Verify modal opened
+- assertVisible: "Gestión de marcas|Brand management"
+
+# Add new brand
+- tapOn:
+    text: "Nombre de la marca"
+- inputText: "New Test Brand"
+
+- tapOn: "Añadir|Add|Crear|Create"
+- waitForAnimationToEnd
+
+# Verify brand was added
+- assertVisible: "New Test Brand"
+
+# Close modal
+- tapOn: "Cerrar|Close"
+- waitForAnimationToEnd

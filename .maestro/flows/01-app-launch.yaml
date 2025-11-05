@@ -1,0 +1,6 @@
+appId: com.pnortiz.perfumario
+---
+# Test: Launch App and Verify Home Screen
+- launchApp
+- assertVisible: "Perfumario|Inventario"
+- assertTrue: ${maestro.copilot.appHasLoaded}

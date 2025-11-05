@@ -1,0 +1,16 @@
+appId: com.pnortiz.perfumario
+---
+# Test: Pull to Refresh
+- launchApp
+- waitForAnimationToEnd
+
+# Pull to refresh
+- scroll:
+    direction: DOWN
+    distance: 200
+
+# Wait for refresh to complete
+- waitForAnimationToEnd
+
+# Verify content is still visible
+- assertVisible: "Disponible|Available|Sin stock|Out of stock"

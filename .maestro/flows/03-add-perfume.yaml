@@ -1,0 +1,35 @@
+appId: com.pnortiz.perfumario
+---
+# Test: Add New Perfume Flow
+- launchApp
+- waitForAnimationToEnd
+
+# Open Add Perfume Modal
+- tapOn:
+    accessibilityLabel: "Añadir perfume"
+- waitForAnimationToEnd
+- assertVisible: "Añadir perfume|Add perfume"
+
+# Fill perfume details
+- tapOn:
+    text: "Nombre del perfume"
+- inputText: "Test Perfume E2E"
+
+# Select gender
+- tapOn: "Mujer"
+
+# Select or create brand
+- tapOn:
+    text: "Nombre de la marca"
+- inputText: "Test Brand E2E"
+
+# Set stock
+- tapOn:
+    text: "10"
+
+# Save perfume
+- tapOn: "Guardar|Save"
+- waitForAnimationToEnd
+
+# Verify success
+- assertVisible: "Test Perfume E2E"

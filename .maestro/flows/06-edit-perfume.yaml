@@ -1,0 +1,36 @@
+appId: com.pnortiz.perfumario
+---
+# Test: Edit Perfume
+- launchApp
+- waitForAnimationToEnd
+
+# Wait for perfumes to load
+- extendedWaitUntil:
+    visible: "Disponible|Available|Sin stock|Out of stock"
+    timeout: 10000
+
+# Swipe to reveal edit button (swipe left on first card)
+- swipe:
+    direction: LEFT
+    duration: 500
+
+# Tap edit button
+- tapOn:
+    accessibilityLabel: "Editar|Edit"
+- waitForAnimationToEnd
+
+# Verify edit modal opened
+- assertVisible: "Editar perfume|Edit perfume"
+
+# Modify name
+- tapOn:
+    id: "nameInput"
+- clearKeychain
+- inputText: "Modified Perfume Name"
+
+# Save changes
+- tapOn: "Actualizar|Update"
+- waitForAnimationToEnd
+
+# Verify success
+- assertVisible: "actualizado|updated"

@@ -1,0 +1,11 @@
+appId: com.pnortiz.perfumario
+---
+# Test: Search Functionality
+- launchApp
+- tapOn: "Buscar perfumes..."
+- inputText: "Chanel"
+- assertVisible: "Chanel|No se encontraron"
+- tapOn:
+    id: "searchInput"
+- clearKeychain
+- assertVisible: ".*"

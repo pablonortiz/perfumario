@@ -83,3 +83,66 @@ jobs:
               repo: context.repo.repo,
               body: '✅ Build successful! Preview available after approval.'
             })
+
+  e2e-tests:
+    name: E2E Tests (Maestro)
+    runs-on: macos-latest
+    needs: [lint, type-check]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Setup iOS Simulator
+        uses: futureware-tech/simulator-action@v3
+        with:
+          model: 'iPhone 15'
+
+      - name: Build iOS app for testing
+        run: |
+          npx expo prebuild --platform ios
+          xcodebuild -workspace ios/perfumario.xcworkspace \
+            -scheme perfumario \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -derivedDataPath ios/build
+
+      - name: Install app on simulator
+        run: |
+          xcrun simctl install booted ios/build/Build/Products/Debug-iphonesimulator/perfumario.app
+
+      - name: Run E2E smoke test
+        run: npm run test:e2e:smoke
+
+      - name: Run all E2E tests
+        if: success()
+        run: npm run test:e2e
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-test-results
+          path: |
+            .maestro/
+            ~/.maestro/tests/

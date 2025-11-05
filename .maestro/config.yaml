@@ -1,0 +1,17 @@
+# Maestro E2E Testing Configuration
+
+appId: com.pnortiz.perfumario
+
+# Environment configuration
+env:
+  APP_NAME: Perfumario
+  TIMEOUT: 30000
+
+# Tags for organizing tests
+tags:
+  - e2e
+  - smoke
+
+# Maestro configuration
+---
+name: Maestro Configuration

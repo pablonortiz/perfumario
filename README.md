@@ -150,3 +150,41 @@ This project is private and proprietary.
 ---
 
 Built with ❤️ using React Native and Expo
+
+## 🧪 Testing
+
+### E2E Tests con Maestro
+
+La aplicación incluye una suite completa de tests End-to-End usando [Maestro](https://maestro.mobile.dev/).
+
+**Tests disponibles:**
+- ✅ Inicio de aplicación
+- 🔍 Búsqueda de perfumes
+- ➕ Crear perfume
+- 🎯 Filtros por género/marca
+- 📊 Actualizar stock
+- ✏️ Editar perfume
+- 🗑️ Eliminar perfume
+- 📄 Generar PDF
+- 🏷️ Gestión de marcas
+- 🔄 Pull to refresh
+- 🎯 Smoke test completo
+
+**Ejecutar tests:**
+
+```bash
+# Todos los tests
+npm run test:e2e
+
+# Solo smoke test
+npm run test:e2e:smoke
+
+# Un solo test
+maestro test .maestro/flows/01-app-launch.yaml
+
+# Modo interactivo (Maestro Studio)
+maestro studio
+```
+
+Ver [E2E_TESTING.md](./docs/E2E_TESTING.md) para documentación completa.
+

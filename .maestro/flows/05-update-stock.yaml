@@ -1,0 +1,24 @@
+appId: com.pnortiz.perfumario
+---
+# Test: Update Stock
+- launchApp
+- waitForAnimationToEnd
+
+# Wait for perfumes to load
+- extendedWaitUntil:
+    visible: "Disponible|Available|Sin stock|Out of stock"
+    timeout: 10000
+
+# Find a perfume card and update stock
+- tapOn: "+"
+- waitForAnimationToEnd
+
+# Verify confirm button appears
+- assertVisible: "Confirmar|Confirm"
+
+# Confirm stock change
+- tapOn: "Confirmar|Confirm"
+- waitForAnimationToEnd
+
+# Verify success message
+- assertVisible: "Stock actualizado|Stock updated"

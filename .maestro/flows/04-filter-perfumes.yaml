@@ -1,0 +1,25 @@
+appId: com.pnortiz.perfumario
+---
+# Test: Filter Perfumes by Gender
+- launchApp
+- waitForAnimationToEnd
+
+# Open filters
+- tapOn:
+    accessibilityLabel: "Filtrar|Filters"
+- waitForAnimationToEnd
+- assertVisible: "Filtros|Filters"
+
+# Select Female filter
+- tapOn: "Mujer|Female"
+
+# Apply filters
+- tapOn: "Aplicar filtros|Apply filters"
+- waitForAnimationToEnd
+
+# Verify filter is active
+- assertVisible: "Mujer|Female"
+
+# Clear filters
+- tapOn: "Limpiar todo|Clear all"
+- waitForAnimationToEnd

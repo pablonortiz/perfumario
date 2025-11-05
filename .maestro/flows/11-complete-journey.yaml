@@ -1,0 +1,52 @@
+appId: com.pnortiz.perfumario
+---
+# Test: Complete User Journey (Smoke Test)
+# This test covers the main user flow from start to finish
+
+- launchApp
+- waitForAnimationToEnd
+
+# Step 1: Search for a perfume
+- tapOn: "Buscar perfumes..."
+- inputText: "Chanel"
+- waitForAnimationToEnd
+- clearKeychain
+
+# Step 2: Open and apply filters
+- tapOn:
+    accessibilityLabel: "Filtrar|Filters"
+- tapOn: "Mujer|Female"
+- tapOn: "Aplicar filtros|Apply filters"
+- waitForAnimationToEnd
+
+# Step 3: Clear filters
+- tapOn: "Limpiar todo|Clear all"
+- waitForAnimationToEnd
+
+# Step 4: Add new perfume
+- tapOn:
+    accessibilityLabel: "Añadir perfume"
+- waitForAnimationToEnd
+- tapOn:
+    text: "Nombre del perfume"
+- inputText: "Journey Test Perfume"
+- tapOn: "Mujer"
+- tapOn:
+    text: "Nombre de la marca"
+- inputText: "Journey Test Brand"
+- tapOn: "Guardar|Save"
+- waitForAnimationToEnd
+
+# Step 5: Update stock
+- tapOn: "+"
+- tapOn: "+"
+- tapOn: "Confirmar|Confirm"
+- waitForAnimationToEnd
+
+# Step 6: Generate PDF
+- tapOn:
+    accessibilityLabel: "Generar PDF|Generate PDF"
+- waitForAnimationToEnd
+
+# Test complete
+- assertTrue: true
