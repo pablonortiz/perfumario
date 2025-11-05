@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 interface MainLayoutProps {
   // Header props
   searchQuery: string;
-  setSearchQuery: (query: string) => void;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
   searchResultsCount: number;
   isSearching: boolean;
   onPressFilters: () => void;

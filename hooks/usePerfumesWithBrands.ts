@@ -14,8 +14,13 @@ export const usePerfumesWithBrands = () => {
   const perfumesWithBrands = useMemo(() => {
     return perfumes.map(
       (perfume): PerfumeWithBrandName => ({
-        ...perfume,
-        brandName: getBrandName(perfume.brand_id),
+        id: perfume.id,
+        name: perfume.name,
+        gender: perfume.gender,
+        stock: perfume.stock,
+        createdAt: new Date(perfume.createdAt),
+        updatedAt: new Date(perfume.updatedAt),
+        brandName: getBrandName(perfume.brandId),
       }),
     );
   }, [perfumes, getBrandName]);
