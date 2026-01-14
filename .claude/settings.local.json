@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx expo start:*)",
+      "Bash(timeout /t 5)",
+      "Bash(nul)",
+      "Bash(if exist \".expo\" rmdir /s /q \".expo\")",
+      "Bash(if exist \"node_modules\\.cache\" rmdir /s /q \"node_modules\\.cache\")",
+      "Bash(npm install)",
+      "Bash(netstat:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd //c taskkill //PID 19240 //F)",
+      "Bash(awk:*)",
+      "Bash(cmd //c taskkill //PID 47232 //F)",
+      "Bash(npx expo export:*)",
+      "Bash(echo:*)",
+      "Bash(pkill:*)",
+      "Bash(killall node:*)",
+      "Bash(tasklist:*)",
+      "Bash(cmd //c taskkill //F //IM node.exe)",
+      "Bash(cmd //c \"if exist .expo rmdir /s /q .expo\")",
+      "Bash(cmd //c \"if exist node_modules\\.cache rmdir /s /q node_modules\\.cache\")",
+      "Bash(cmd //c \"del /s /q %LOCALAPPDATA%\\Temp\\metro-* 2>nul\")",
+      "Bash(cmd //c \"del /s /q %LOCALAPPDATA%\\Temp\\react-* 2>nul\")",
+      "Bash(cmd //c \"del /s /q %LOCALAPPDATA%\\Temp\\haste-* 2>nul\")",
+      "Bash(cmd //c \"rmdir /s /q node_modules\")",
+      "Bash(del package-lock.json)",
+      "Bash(cmd //c taskkill //F //IM node.exe 2)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

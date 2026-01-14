@@ -114,41 +114,7 @@ const generateHTML = (
           font-size: 1.1rem;
           opacity: 0.9;
         }
-        
-        .summary {
-          background: #f1f5f9;
-          padding: 20px 30px;
-          border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .summary-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 20px;
-        }
-        
-        .summary-item {
-          text-align: center;
-          padding: 15px;
-          background: white;
-          border-radius: 8px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        
-        .summary-number {
-          font-size: 2rem;
-          font-weight: 700;
-          color: #7c3aed;
-          margin-bottom: 5px;
-        }
-        
-        .summary-label {
-          color: #64748b;
-          font-size: 0.9rem;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
+
         .content {
           padding: 30px;
         }
@@ -328,28 +294,7 @@ const generateHTML = (
           <h1>🧴 Inventario de Perfumes</h1>
           <p>Reporte completo del catálogo de perfumes</p>
         </div>
-        
-        <div class="summary">
-          <div class="summary-grid">
-            <div class="summary-item">
-              <div class="summary-number">${perfumes.length}</div>
-              <div class="summary-label">Total Perfumes</div>
-            </div>
-            <div class="summary-item">
-              <div class="summary-number">${Object.keys(perfumesByGender).length}</div>
-              <div class="summary-label">Categorías</div>
-            </div>
-            <div class="summary-item">
-              <div class="summary-number">${brands.length}</div>
-              <div class="summary-label">Marcas</div>
-            </div>
-            <div class="summary-item">
-              <div class="summary-number">${perfumes.filter((p) => p.stock > 0).length}</div>
-              <div class="summary-label">Disponibles</div>
-            </div>
-          </div>
-        </div>
-        
+
         <div class="content">
           ${Object.entries(perfumesByGender)
             .sort(([a], [b]) => a.localeCompare(b))
