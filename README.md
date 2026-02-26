@@ -1,50 +1,68 @@
-# Welcome to your Expo app 👋
+# Perfumario
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile app to manage your perfume collection. Track your inventory, manage brands, filter and search your perfumes, update stock, and export your collection to PDF.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Full perfume CRUD** — Create, view, edit, and delete perfumes from your collection
+- **Brand management** — Add and manage perfume brands
+- **Smart search & filters** — Find perfumes quickly with debounced search and filter chips
+- **Stock tracking** — Update stock levels with a single tap
+- **PDF export** — Generate a PDF report of your collection
+- **Swipeable cards** — Swipe to reveal quick actions
+- **Pull to refresh** — Stay in sync with the latest data
+- **Smooth animations** — Animated modals, buttons, lists, and loading shimmers
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+| Technology | Purpose |
+|---|---|
+| **Expo SDK 54** | Framework & native APIs |
+| **React Native** | Cross-platform UI |
+| **TypeScript** | Type safety |
+| **NativeWind / TailwindCSS** | Styling |
+| **Zustand** | State management |
+| **TanStack React Query** | Data fetching & caching |
+| **React Navigation** | Routing (expo-router) |
+| **React Native Paper** | UI components |
+| **perfumario-schemas** | Shared Zod schemas with backend |
 
-   ```bash
-   npx expo start
-   ```
+## Getting Started
 
-In the output, you'll find options to open the app in a
+### Prerequisites
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Node.js (check `.nvmrc` for version)
+- Expo CLI
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### Installation
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Project Structure
 
-## Learn more
+```
+perfumario/
+├── app/                  # Screens (file-based routing)
+├── components/           # Reusable UI components
+│   ├── AnimatedButton/
+│   ├── AnimatedList/
+│   ├── AnimatedModal/
+│   ├── BrandManagementModal/
+│   ├── FilterChips/
+│   ├── FilterModal/
+│   ├── PerfumeCard/
+│   ├── SwipeableCard/
+│   └── ...
+├── hooks/                # Custom hooks (queries, mutations, filters)
+├── stores/               # Zustand stores
+├── types/                # TypeScript types
+├── src/                  # Theme & shared utilities
+└── assets/               # Images & fonts
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## License
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+MIT
